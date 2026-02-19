@@ -1,4 +1,4 @@
-# CECDoc — générateur de requête de changement de mention de sexe à l’état civil
+# CECDoc — générateur de requête de changement de mention de sexe à l’état civil 🏳️‍⚧️
 
 <p align="left">
   <a href="release/CECDoc-4.0.1.jar?raw=1">
@@ -31,14 +31,14 @@ C’est une application libre et open-source **desktop** (Java/Swing), développ
   <img src="img/illustration.png" alt="Capture d’écran de CECDoc" width="800">
 </p>
 
-## Pourquoi ?
+## ❓ Pourquoi ?
 
 Les démarches d’état civil peuvent être longues, coûteuses, et parfois vécues comme une **violence administrative** (paperasse, injonctions, barrières juridiques, phobie administrative ou simplement difficultés à se mobiliser en raison de sa santé mentale, etc.).  
 CECDoc vise un objectif simple : **réduire la charge** et **reprendre du pouvoir** sur sa procédure en automatisant la génération et la mise en forme d’une requête cohérente, tout en laissant la place au récit personnel et aux choix de pièces.
 
 L’outil n’est pas un substitut à un accompagnement juridique ou associatif : il facilite la production d’un document, pas la stratégie ni la "défense".
 
-## Fonctionnalités
+## 🕹️ Fonctionnalités
 
 - Formulaire guidé en interface Swing.
 - Dossier de changement de mention de sexe à l’état civil.
@@ -59,7 +59,7 @@ L’outil n’est pas un substitut à un accompagnement juridique ou associatif 
   - réordonnancement des fichiers joints ;
   - signalement des fichiers introuvables avec correction possible.
 
-## PDF final
+## 🗂️ PDF final
 
 Le PDF final est assemblé dans cet ordre :
 
@@ -68,7 +68,7 @@ Le PDF final est assemblé dans cet ordre :
 
 Formats de pièces jointes acceptés : **DOC, DOCX, PDF, JPG, JPEG, PNG**.
 
-## Conversion et fusion PDF
+## 📑 Conversion et fusion PDF
 
 - Conversion `.docx -> .pdf` : conversion directe via **docx4j**.
 - Conversion `.doc -> .pdf` : conversion via **LibreOffice/JODConverter** (secours pour les anciens formats Word).
@@ -76,7 +76,7 @@ Formats de pièces jointes acceptés : **DOC, DOCX, PDF, JPG, JPEG, PNG**.
 - Fusion des PDF : via **PDFBox**.
 - Écritures atomiques pour limiter les fichiers partiels en cas d’échec.
 
-## Thèmes visuels
+## 🏳️‍🌈 Thèmes visuels
 
 Le panneau **Configuration** permet de choisir un thème :
 
@@ -89,7 +89,7 @@ Le panneau **Configuration** permet de choisir un thème :
 
 Quand un thème explicite est choisi en configuration, il prend le dessus sur le comportement automatique.
 
-## Persistance locale (`cecdoc.conf`)
+## ⚙️ Persistance locale (`cecdoc.conf`)
 
 CECDoc sauvegarde l’état des formulaires dans un fichier `cecdoc.conf` (format `.properties`) placé à côté de l’exécutable, avec repli sur le répertoire courant.
 
@@ -106,7 +106,7 @@ Comportement :
 - mise à jour au fil de la saisie ;
 - suppression lors d’un effacement global.
 
-## Raccourcis clavier
+## ⌨️ Raccourcis clavier
 
 - `Ctrl/Cmd + Entrée` : générer le dossier
 - `Ctrl/Cmd + J` : ouvrir "Pièces justificatives"
@@ -114,34 +114,26 @@ Comportement :
 - `Ctrl/Cmd + Shift + L` : activer/désactiver le mode "changement de prénoms"
 - `Échap` : effacer les erreurs de validation affichées
 
-## Exemples
+## 📄 Exemples
 
-Des exemples de documents générés sont disponibles [ici](exemples/requete_changement_sexe.docx?raw=1) pour le Word et [ici](exemples/requete_changement_sexe_dossier_complet.pdf?raw=1) pour le PDF (dossier complet). Pour la lettre au/à la greffier·e, c'est [ici](exemples/requete_changement_sexe_lettre_greffierE.docx?raw=1), pour la lettre à l'université, c'est [ici](exemples/lettre_prenom_usage_universite.docx?raw=1), et pour la lettre aux administrations c'est [là](exemples/lettre_mise_a_jour_administration.docx?raw=1).
+Des exemples de documents générés sont disponibles :
+- [Ici](exemples/requete_changement_sexe.docx?raw=1) pour la requête au format Word ;
+- [Ici](exemples/requete_changement_sexe_dossier_complet.pdf?raw=1) pour le PDF du dossier complet ;
+- [Ici](exemples/requete_changement_sexe_lettre_greffierE.docx?raw=1) pour la lettre au/à la greffier·e ;
+- [Ici](exemples/lettre_prenom_usage_universite.docx?raw=1) pour la lettre à l'université ;
+- [Ici](exemples/lettre_mise_a_jour_administration.docx?raw=1) pour la lettre aux administrations.
 
-## Prérequis
+## 🛠️ Installation/utilisation
 
-- Java 17 (JRE/JDK)
-- Maven (pour compiler)
-
-## Utilisation
-
-### macOS / Windows / Linux (JAR)
-
-Une fois que vous avez un `.jar` exécutable :
-
-```bash
-java -jar CECDoc-4.0.1.jar
-```
-
-## Build Windows (.exe)
+### Build Windows (.exe)
 
 Une version **Windows** est disponible. Un bouton pour la télécharger est disponible plus haut. Téléchargez le fichier, exécutez-le et suivez les instructions d'installation.
 
-## Build macOS (.dmg)
+### Build macOS (.dmg)
 
 Deux versions **macOS** est également disponibles : le .dmg est trop lourd pour être uploadé sur GitHub. Pour la version 3.0.0, j'ai réussi à la faire passer en la compressant au format [7-Zip](https://www.7-zip.fr/). Elle est donc téléchargeable directement sur le repo via le bouton "Télécharger 3.0.0" disponible plus haut. La dernière version (4.0.1) est distribuée via un site de partage de fichiers (bouton "Télécharger dernière version"), mais ces liens expirent et il se peut que j'oublie de le mettre à jour tous les 30 jours. Dans ce cas, n'hésitez pas à [m'envoyer un mail](mailto:rdr@tutanota.de) pour solliciter cette dernière version, qui présente des améliorations majeures.
 
-### Si macOS (Gatekeeper) bloque CECDoc
+#### Si macOS (Gatekeeper) bloque CECDoc :
 
 Selon la configuration de **macOS**, au premier lancement, un message du type *« app provenant d’un développeur non identifié / ne peut pas être ouverte »* peut s’afficher.
 
@@ -158,7 +150,90 @@ Alternative rapide : **clic droit (ou Ctrl-clic) sur l’app → Ouvrir → Ouvr
 sudo xattr -r -d com.apple.quarantine "/Applications/CECDoc.app"
 ```
 
-## Compilation depuis les sources (Maven)
+### macOS / Windows / Linux (JAR)
+
+Une fois que vous avez un `.jar` exécutable, et après avoir installé Java (voir plus bas), double cliquez dessus ou faites :
+
+```bash
+java -jar CECDoc-4.0.1.jar
+```
+
+## 💻 Prérequis
+
+- Java 17 (JRE/JDK)
+- Maven (pour compiler)
+
+## ⬇️ Installer Java (nécessaire si vous utilisez la version .jar, optionnel pour les .dmg et .exe)
+
+CECDoc requiert **Java 17 minimum**, mais fonctionne aussi avec des versions plus récentes. Au moment où j'écris ces lignes, la dernière version LTS est **Java 25**.
+
+### Téléchargement GUI (le plus facile) :
+https://www.oracle.com/java/technologies/downloads/ 
+
+### macOS (avec Homebrew)
+
+```bash
+brew update
+brew install openjdk
+# (optionnel, recommandé) rendre le JDK visible pour les wrappers Java macOS
+sudo ln -sfn "$HOMEBREW_PREFIX/opt/openjdk/libexec/openjdk.jdk" /Library/Java/JavaVirtualMachines/openjdk.jdk
+```
+
+### Windows
+
+- Oracle JDK 25 :
+```powershell
+winget install -e --id Oracle.JDK.25
+```
+
+- Microsoft Build of OpenJDK 25 (alternative) :
+```powershell
+winget search Microsoft.OpenJDK
+winget install Microsoft.OpenJDK.25
+```
+
+### Linux
+
+#### Debian / Ubuntu / dérivés (apt)
+
+**Option A — dépôts de la distribution (si disponible)**
+```bash
+sudo apt update
+sudo apt install -y openjdk-25-jdk
+```
+
+**Option B — dépôt Adoptium (Temurin) (si votre distro ne propose pas encore OpenJDK 25)**
+```bash
+sudo apt install -y wget apt-transport-https gpg
+wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null
+echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | sudo tee /etc/apt/sources.list.d/adoptium.list > /dev/null
+sudo apt update
+sudo apt install -y temurin-25-jdk
+```
+
+#### Fedora / RHEL / Rocky / Alma (dnf)
+
+```bash
+sudo dnf install -y java-latest-openjdk
+```
+
+#### openSUSE / SLES (zypper)
+
+**Dépôt Adoptium (Temurin)**
+```bash
+sudo zypper ar -f https://packages.adoptium.net/artifactory/rpm/opensuse/$(. /etc/os-release; echo $VERSION_ID)/$(uname -m) adoptium
+sudo zypper refresh
+sudo zypper install -y temurin-25-jdk
+```
+
+#### Arch Linux / Manjaro (pacman)
+
+**Dépôts officiels (OpenJDK "courant")**
+```bash
+sudo pacman -Syu --noconfirm jdk-openjdk
+```
+
+## 👷 Compilation depuis les sources (Maven)
 
 ```bash
 mvn clean package
@@ -166,7 +241,7 @@ mvn clean package
 
 Le binaire est généré dans `target/` (le nom exact dépend du packaging).
 
-## Accessibilité
+## 🌐 Accessibilité
 
 CECDoc est conçu pour rester utilisable au clavier et avec des technologies d’assistance.
 
@@ -179,23 +254,19 @@ CECDoc est conçu pour rester utilisable au clavier et avec des technologies d�
 - États d’erreur affichés sans blocage de l’interface (validation en ligne).
 - Ordre de focus maîtrisé sur l’écran principal pour un parcours cohérent sans souris.
 
-## Easter eggs
+## 🥚 Easter eggs
 
-- Journée internationale contre l'homophobie, la transphobie, et la biphobie : le 17 mai, à l'ouverture du programme, un pop-up s'affiche...
+- Journée internationale contre l'homophobie, la transphobie, et la biphobie : le 17 mai, à l'ouverture du programme, un pop-up s'affiche... 🏳️‍🌈
 - Journée internationale de la visibilité pansexuelle : le 24 mai, à l'ouverture du programme, un pop-up s'affiche pour la journée internationale de la visibilité pansexuelle. Et quel popup... 😳
 - Journée internationale de visibilité des personnes non-binaires : le 14 juillet, un pop-up s'affiche si le thème actif est non-binaire. Just a bit shady... 🕶️
 - Journée internationale de visibilité lesbienne : le 26 avril, à l'ouverture du programme, un pop-up s'affiche si le thème lesbien est actif... histoire de les congratuler comme il se doit. 😍
 - Journée de la bisexualité : le 23 septembre, à l'ouverture du programme, un pop-up s'affiche... Just a bit shadier... 👓
 - Coming out day : le 11 octobre, à l'ouverture du programme, un pop-up s'affiche. 👯
 - Journée internationale de visibilité intersexe : le 8 novembre, un pop-up s'affiche si le thème intersexe est actif. 💛💜💛
-- TDoV – Trans Day of Visibility : le 31 mars, à l'ouverture du programme, un pop-up s'affiche.
+- TDoV – Trans Day of Visibility : le 31 mars, à l'ouverture du programme, un pop-up s'affiche. 🏳️‍⚧️
 
-## Me contacter
+## ✉️ Me contacter
 
 Vous pouvez me contacter via [ce mail](mailto:rdr@tutanota.de).
 
 ---
-
-<p align="center">
-  <img src="img/exemple.gif" alt="GIF animé illustrant l'usage de CECDoc" width="800">
-</p>
