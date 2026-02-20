@@ -1,5 +1,6 @@
 package com.rdr.cecdoc.ui;
 
+import com.rdr.cecdoc.model.TypeDocumentGenere;
 import com.rdr.cecdoc.service.export.ErreurExportDocument;
 import com.rdr.cecdoc.ui.theme.StyliseurBoutonTheme;
 import com.rdr.cecdoc.ui.theme.TokensTheme;
@@ -55,7 +56,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.JTextComponent;
 
 abstract class DialogueFormulaireDocumentAbstrait extends JDialog {
@@ -130,6 +130,12 @@ abstract class DialogueFormulaireDocumentAbstrait extends JDialog {
         boutonGenerer = new JButton(libelleBoutonGenerer);
         StyliseurBoutonTheme.appliquer(boutonAnnuler, this.theme.palette().secondaryButton(), this.theme, this.theme.typography().buttonSecondary());
         StyliseurBoutonTheme.appliquer(boutonGenerer, this.theme.palette().primaryButton(), this.theme, this.theme.typography().buttonPrimary());
+        boutonAnnuler.setMnemonic(KeyEvent.VK_A);
+        boutonGenerer.setMnemonic(KeyEvent.VK_G);
+        boutonAnnuler.getAccessibleContext().setAccessibleName("Annuler");
+        boutonAnnuler.getAccessibleContext().setAccessibleDescription("Ferme la fenêtre sans générer de document");
+        boutonGenerer.getAccessibleContext().setAccessibleName(libelleBoutonGenerer);
+        boutonGenerer.getAccessibleContext().setAccessibleDescription("Valide le formulaire puis lance la génération du document");
 
         boutonAnnuler.addActionListener(e -> {
             if (tacheActive == null) {
@@ -152,6 +158,8 @@ abstract class DialogueFormulaireDocumentAbstrait extends JDialog {
         setContentPane(panneauRacine);
         setMinimumSize(new Dimension(860, 620));
         getRootPane().setDefaultButton(boutonGenerer);
+        getAccessibleContext().setAccessibleName(titreFenetre);
+        getAccessibleContext().setAccessibleDescription("Fenêtre de formulaire de génération documentaire");
         getRootPane().registerKeyboardAction(e -> {
             if (tacheActive == null) {
                 dispose();
@@ -413,7 +421,7 @@ abstract class DialogueFormulaireDocumentAbstrait extends JDialog {
             return;
         }
 
-        File fichierDestination = choisirDestinationDocx();
+        File fichierDestination = choisirDestinationDocument();
         if (fichierDestination == null) {
             return;
         }
@@ -469,19 +477,22 @@ abstract class DialogueFormulaireDocumentAbstrait extends JDialog {
         boutonGenerer.setEnabled(!occupe);
     }
 
-    private File choisirDestinationDocx() {
+    private File choisirDestinationDocument() {
         JFileChooser selecteur = new JFileChooser();
         MemoireRepertoireExplorateur.appliquerAuSelecteur(selecteur, dossierSortieParDefaut);
         selecteur.setDialogTitle(titreChoixDestination());
-        selecteur.setSelectedFile(fichierParDefautDansDossierSortie(nomFichierParDefaut()));
+        TypeDocumentGenere typeParDefaut = SelectionFichierDocument.typeDepuisNomFichier(nomFichierParDefaut());
+        String nomParDefaut = SelectionFichierDocument.adapterNomFichier(nomFichierParDefaut(), typeParDefaut);
+        selecteur.setSelectedFile(fichierParDefautDansDossierSortie(nomParDefaut));
         selecteur.setAcceptAllFileFilterUsed(false);
-        selecteur.setFileFilter(new FileNameExtensionFilter("Document Word (*.docx)", "docx"));
+        SelectionFichierDocument.appliquerFiltresDocuments(selecteur, "Document", typeParDefaut);
         int choix = selecteur.showSaveDialog(this);
         if (choix != JFileChooser.APPROVE_OPTION) {
             return null;
         }
         MemoireRepertoireExplorateur.memoriserDepuisSelection(selecteur);
-        return garantirExtension(selecteur.getSelectedFile(), "docx");
+        TypeDocumentGenere typeChoisi = SelectionFichierDocument.typeDepuisSelection(selecteur);
+        return SelectionFichierDocument.garantirExtension(selecteur.getSelectedFile(), typeChoisi);
     }
 
     private int afficherConfirmation(String message, String titre) {
@@ -596,18 +607,6 @@ abstract class DialogueFormulaireDocumentAbstrait extends JDialog {
             return "";
         }
         return texte.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
-    }
-
-    private static File garantirExtension(File fichierSelectionne, String extensionAttendue) {
-        if (fichierSelectionne == null) {
-            return null;
-        }
-        String suffixe = "." + extensionAttendue.toLowerCase(Locale.ROOT);
-        if (fichierSelectionne.getName().toLowerCase(Locale.ROOT).endsWith(suffixe)) {
-            return fichierSelectionne;
-        }
-        File parent = fichierSelectionne.getParentFile();
-        return parent == null ? new File(fichierSelectionne.getName() + suffixe) : new File(parent, fichierSelectionne.getName() + suffixe);
     }
 
     private File fichierParDefautDansDossierSortie(String nomFichier) {

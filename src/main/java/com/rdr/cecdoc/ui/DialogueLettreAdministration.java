@@ -138,7 +138,7 @@ final class DialogueLettreAdministration extends DialogueFormulaireDocumentAbstr
             valide = false;
         }
         if (!caseChangementPrenom.isSelected() && !caseChangementSexe.isSelected()) {
-            signalerErreurGlobale("Au moins une modification doit être effective : prénom et/ou sexe à l'état civil.");
+            signalerErreurGlobale("Au moins une modification doit être effective : prénom ou mention de sexe à l'état civil.");
             valide = false;
         }
         boolean uniquementPrenom = caseChangementPrenom.isSelected() && !caseChangementSexe.isSelected();

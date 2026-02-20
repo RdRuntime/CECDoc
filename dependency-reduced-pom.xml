@@ -4,7 +4,7 @@
   <groupId>com.rdr</groupId>
   <artifactId>CECDoc</artifactId>
   <name>CECDoc</name>
-  <version>4.0.1</version>
+  <version>4.2.0</version>
   <build>
     <plugins>
       <plugin>

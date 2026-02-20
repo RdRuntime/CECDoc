@@ -21,7 +21,8 @@ import java.util.Optional;
 import java.util.Properties;
 
 public final class PersistanceEtatDossierProperties implements PersistanceEtatDossier {
-    private static final String NOM_FICHIER = "cecdoc.conf";
+    private static final String NOM_FICHIER = ".cecdoc.conf";
+    private static final String NOM_FICHIER_LEGACY = "cecdoc.conf";
     private static final System.Logger JOURNAL = System.getLogger(PersistanceEtatDossierProperties.class.getName());
 
     private static final String CLE_CHANGEMENT_PRENOMS = "changementPrenoms";
@@ -56,6 +57,7 @@ public final class PersistanceEtatDossierProperties implements PersistanceEtatDo
     private static final String CLE_PIECES_DETAILLEES_PREFIXE = "piecesJustificativesDetaillees.";
 
     private final Path cheminConfig;
+    private final Path cheminConfigLegacy;
 
     public PersistanceEtatDossierProperties() {
         this(resoudreCheminConfigParDefaut());
@@ -63,15 +65,34 @@ public final class PersistanceEtatDossierProperties implements PersistanceEtatDo
 
     PersistanceEtatDossierProperties(Path cheminConfig) {
         this.cheminConfig = Objects.requireNonNull(cheminConfig, "cheminConfig");
+        this.cheminConfigLegacy = resoudreCheminConfigLegacy(cheminConfig);
+    }
+
+    public static Properties convertirEtatEnProprietes(EtatDossierPersistant etat) {
+        Objects.requireNonNull(etat, "etat");
+        return ecrireProprietes(etat);
+    }
+
+    public static EtatDossierPersistant convertirProprietesEnEtat(Properties proprietes) {
+        Objects.requireNonNull(proprietes, "proprietes");
+        return lireEtat(proprietes);
     }
 
     @Override
     public Optional<EtatDossierPersistant> charger() {
-        if (!Files.isRegularFile(cheminConfig)) {
+        Path cheminLecture = cheminConfig;
+        if (!Files.isRegularFile(cheminLecture)) {
+            if (cheminConfigLegacy != null && Files.isRegularFile(cheminConfigLegacy)) {
+                cheminLecture = cheminConfigLegacy;
+            } else {
+                return Optional.empty();
+            }
+        }
+        if (!Files.isRegularFile(cheminLecture)) {
             return Optional.empty();
         }
         Properties proprietes = new Properties();
-        try (BufferedInputStream entree = new BufferedInputStream(Files.newInputStream(cheminConfig))) {
+        try (BufferedInputStream entree = new BufferedInputStream(Files.newInputStream(cheminLecture))) {
             proprietes.load(entree);
             return Optional.of(lireEtat(proprietes));
         } catch (IOException | RuntimeException ex) {
@@ -92,6 +113,7 @@ public final class PersistanceEtatDossierProperties implements PersistanceEtatDo
             try (BufferedOutputStream sortie = new BufferedOutputStream(Files.newOutputStream(cheminConfig, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE))) {
                 proprietes.store(sortie, null);
             }
+            marquerFichierCacheSousWindows(cheminConfig);
         } catch (IOException ex) {
             JOURNAL.log(System.Logger.Level.WARNING, "Impossible de sauvegarder le fichier de configuration : " + cheminConfig, ex);
         }
@@ -101,12 +123,15 @@ public final class PersistanceEtatDossierProperties implements PersistanceEtatDo
     public void effacer() {
         try {
             Files.deleteIfExists(cheminConfig);
+            if (cheminConfigLegacy != null) {
+                Files.deleteIfExists(cheminConfigLegacy);
+            }
         } catch (IOException ex) {
             JOURNAL.log(System.Logger.Level.WARNING, "Impossible d'effacer le fichier de configuration : " + cheminConfig, ex);
         }
     }
 
-    private EtatDossierPersistant lireEtat(Properties proprietes) {
+    private static EtatDossierPersistant lireEtat(Properties proprietes) {
         List<String> piecesJustificatives = lireTitresPieces(proprietes);
         List<PieceJustificative> piecesDetaillees = lirePiecesDetaillees(proprietes);
 
@@ -115,7 +140,7 @@ public final class PersistanceEtatDossierProperties implements PersistanceEtatDo
         return new EtatDossierPersistant(instantane, valeurBooleenne(proprietes, CLE_EFFACER_APRES_EXPORT), valeurBooleenne(proprietes, CLE_CONFIRMER_QUITTER_AVEC_DONNEES, true), valeurBooleenne(proprietes, CLE_MEMORISER_DONNEES_SAISIES, true), valeur(proprietes, CLE_THEME_APPLICATION), valeur(proprietes, CLE_DOSSIER_SORTIE_PAR_DEFAUT), lireInstantaneLettreUniversite(proprietes), lireInstantaneLettreAdministration(proprietes));
     }
 
-    private Properties ecrireProprietes(EtatDossierPersistant etat) {
+    private static Properties ecrireProprietes(EtatDossierPersistant etat) {
         Properties proprietes = new Properties();
         InstantaneDossier instantane = etat.instantane();
 
@@ -301,6 +326,29 @@ public final class PersistanceEtatDossierProperties implements PersistanceEtatDo
             return repertoireExecutable.resolve(NOM_FICHIER);
         } catch (URISyntaxException | IllegalArgumentException | SecurityException ex) {
             return repertoireSecours.resolve(NOM_FICHIER);
+        }
+    }
+
+    private static Path resoudreCheminConfigLegacy(Path cheminConfig) {
+        if (cheminConfig == null) {
+            return null;
+        }
+        Path parent = cheminConfig.toAbsolutePath().normalize().getParent();
+        if (parent == null) {
+            return null;
+        }
+        Path legacy = parent.resolve(NOM_FICHIER_LEGACY);
+        return legacy.equals(cheminConfig.toAbsolutePath().normalize()) ? null : legacy;
+    }
+
+    private static void marquerFichierCacheSousWindows(Path chemin) {
+        String nomOs = System.getProperty("os.name", "").toLowerCase();
+        if (!nomOs.contains("win")) {
+            return;
+        }
+        try {
+            Files.setAttribute(chemin, "dos:hidden", Boolean.TRUE);
+        } catch (IOException | UnsupportedOperationException | SecurityException ignored) {
         }
     }
 }

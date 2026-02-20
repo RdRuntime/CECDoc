@@ -86,7 +86,7 @@ public final class ErreurExportDocument extends Exception {
     public static ErreurExportDocument attachmentUnsupportedType(String fileName) {
         String nom = fileName == null || fileName.isBlank() ? "fichier joint" : fileName;
         return new ErreurExportDocument(Reason.ATTACHMENT_UNSUPPORTED_TYPE,
-                "Le type du fichier joint « " + nom + " » n'est pas pris en charge. Formats acceptés: DOC, DOCX, PDF, JPG, JPEG, PNG.", null);
+                "Le type du fichier joint « " + nom + " » n'est pas pris en charge. Formats acceptés: DOC, DOCX, ODT, PDF, JPG, JPEG, PNG.", null);
     }
 
     public static ErreurExportDocument attachmentConversionFailed(String fileName, Throwable cause) {

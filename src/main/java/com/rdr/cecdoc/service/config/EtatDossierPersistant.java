@@ -35,7 +35,11 @@ public record EtatDossierPersistant(InstantaneDossier instantane, boolean efface
         if (valeur == null || valeur.isBlank()) {
             return "defaut";
         }
-        return valeur.trim();
+        String theme = valeur.trim().toLowerCase();
+        return switch (theme) {
+            case "defaut", "trans", "non_binaire", "lesbien", "intersexe", "rainbow" -> theme;
+            default -> "defaut";
+        };
     }
 
     private static String normaliserDossierSortieParDefaut(String valeur) {

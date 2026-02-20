@@ -7,9 +7,10 @@ import com.rdr.cecdoc.model.InstantaneLettreAdministration;
 import com.rdr.cecdoc.model.InstantaneLettreUniversite;
 import com.rdr.cecdoc.model.PieceJointe;
 import com.rdr.cecdoc.model.PieceJustificative;
-import com.rdr.cecdoc.model.TypePieceJointe;
+import com.rdr.cecdoc.model.TypeDocumentGenere;
 import com.rdr.cecdoc.service.ServiceApplicationDossier;
 import com.rdr.cecdoc.service.FabriqueServices;
+import com.rdr.cecdoc.service.ServiceMiseAJour;
 import com.rdr.cecdoc.service.config.PersistanceEtatDossier;
 import com.rdr.cecdoc.service.config.EtatDossierPersistant;
 import com.rdr.cecdoc.util.NormalisationTexte;
@@ -17,7 +18,6 @@ import com.rdr.cecdoc.util.ParseursDate;
 import com.rdr.cecdoc.service.export.EcritureDocxAtomique;
 import com.rdr.cecdoc.service.export.ErreurExportDocument;
 import com.rdr.cecdoc.service.export.ServiceGenerationLettreGreffiere;
-import com.rdr.cecdoc.service.export.ServicePdfDossierComplet;
 import com.rdr.cecdoc.service.validation.ProblemeValidation;
 import com.rdr.cecdoc.service.validation.ResultatValidation;
 import com.rdr.cecdoc.ui.theme.TokensEtatBouton;
@@ -25,10 +25,10 @@ import com.rdr.cecdoc.ui.theme.FabriqueTheme;
 import com.rdr.cecdoc.ui.theme.DiffuseurTheme;
 import com.rdr.cecdoc.ui.theme.ModeTheme;
 import com.rdr.cecdoc.ui.theme.PreferenceThemeApplication;
-import com.rdr.cecdoc.ui.theme.StyliseurBoutonTheme;
 import com.rdr.cecdoc.ui.theme.TokensTheme;
 
 import java.awt.BorderLayout;
+import java.awt.datatransfer.StringSelection;
 import java.awt.Component;
 import java.awt.Color;
 import java.awt.Container;
@@ -40,6 +40,7 @@ import java.awt.GradientPaint;
 import java.awt.LinearGradientPaint;
 import java.awt.RadialGradientPaint;
 import java.awt.Image;
+import java.awt.Desktop;
 import java.awt.GraphicsEnvironment;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -65,6 +66,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.Serial;
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -96,17 +98,19 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JFileChooser;
 import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.Timer;
 import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
@@ -117,7 +121,7 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
-import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.plaf.basic.BasicButtonUI;
 import javax.swing.text.JTextComponent;
@@ -126,35 +130,16 @@ import javax.swing.text.JTextComponent;
 public class FenetreCECDoc extends FenetreFormulaireAbstraite {
     private static final String NOTIF_ITEM = "Notification de changement de prénoms à l’état-civil";
     private static final String CLE_DESACTIVER_SYSTEM_EXIT = "cecdoc.desactiver.system.exit";
+    private static final int DELAI_PERSISTANCE_ETAT_MS = 350;
     @Serial
     private static final long serialVersionUID = 1L;
     private static final System.Logger LOGGER = System.getLogger(FenetreCECDoc.class.getName());
-    private static final Color COULEUR_TRANS_BLEU = Color.decode("#5BCEFA");
-    private static final Color COULEUR_TRANS_ROSE = Color.decode("#F5A9B8");
-    private static final Color COULEUR_BLANCHE = Color.decode("#FFFFFF");
-    private static final Color COULEUR_NON_BINAIRE_JAUNE = Color.decode("#FCF434");
-    private static final Color COULEUR_NON_BINAIRE_VIOLET = Color.decode("#9C59D1");
-    private static final Color COULEUR_NON_BINAIRE_NOIR = Color.decode("#000000");
-    private static final Color COULEUR_LESBIEN_ORANGE_FONCE = Color.decode("#D52D00");
-    private static final Color COULEUR_LESBIEN_ORANGE_CLAIR = Color.decode("#EF7627");
-    private static final Color COULEUR_LESBIEN_ORANGE_PALE = Color.decode("#FF9A56");
-    private static final Color COULEUR_LESBIEN_ROSE = Color.decode("#D162A4");
-    private static final Color COULEUR_LESBIEN_ROSE_FONCE = Color.decode("#B55690");
-    private static final Color COULEUR_LESBIEN_PRUNE = Color.decode("#A30262");
-    private static final Color COULEUR_RAINBOW_ROUGE = Color.decode("#E40303");
-    private static final Color COULEUR_RAINBOW_ORANGE = Color.decode("#FF8C00");
-    private static final Color COULEUR_RAINBOW_JAUNE = Color.decode("#FFED00");
-    private static final Color COULEUR_RAINBOW_VERT = Color.decode("#008026");
-    private static final Color COULEUR_RAINBOW_BLEU = Color.decode("#004DFF");
-    private static final Color COULEUR_RAINBOW_VIOLET = Color.decode("#750787");
     private static final Color COULEUR_INTERSEXE_JAUNE = Color.decode("#FFD800");
     private static final Color COULEUR_INTERSEXE_VIOLET = Color.decode("#7902AA");
-    private static final Color COULEUR_PAN_ROSE = Color.decode("#FF1B8D");
-    private static final Color COULEUR_PAN_JAUNE = Color.decode("#FFD900");
-    private static final Color COULEUR_PAN_BLEU = Color.decode("#1BB3FF");
-    private static final Color COULEUR_BI_ROSE = Color.decode("#D60270");
-    private static final Color COULEUR_BI_VIOLET = Color.decode("#9B4F96");
-    private static final Color COULEUR_BI_BLEU = Color.decode("#0038A8");
+    private static final Color COULEUR_COMMUNISTE_JAUNE = Color.decode("#FFD700");
+    private static final Color COULEUR_COMMUNISTE_ROUGE_CLAIR = Color.decode("#E53935");
+    private static final Color COULEUR_COMMUNISTE_ROUGE_FONCE = Color.decode("#8B0000");
+    private static final Color COULEUR_COMMUNISTE_TEXTE_SECONDAIRE = Color.decode("#FFECB3");
 
     private final transient ServiceApplicationDossier serviceApplication;
     private final transient ServiceGenerationLettreGreffiere serviceGenerationLettreGreffiere;
@@ -189,8 +174,6 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
     private final JButton boutonEffacer;
     private final JButton boutonAutresDocuments;
     private final JButton boutonGenerer;
-    private final JButton boutonAide;
-    private final JButton boutonConfiguration;
     private final JLabel labelMessageFormulaire;
 
     private final PanneauDegrade panneauRacine;
@@ -198,6 +181,11 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
     private final JLabel labelTitre;
     private final JLabel labelSousTitre;
     private final JLabel labelRaccourcis;
+    private transient JMenuBar barreMenusPrincipale;
+    private final transient GestionnaireMenusApplication gestionnaireMenusApplication;
+    private final transient GestionnaireConfigurationFichier gestionnaireConfigurationFichier;
+    private final transient GestionnaireSortiesGeneration gestionnaireSortiesGeneration;
+    private final transient GestionnairePopupsVisibilite gestionnairePopupsVisibilite;
 
     private JScrollPane scrollAdresse;
     private JScrollPane scrollTribunal;
@@ -232,8 +220,12 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
     private boolean suspendreSuiviModification;
 
     private final transient PersistanceEtatDossier persistanceEtat;
+    private final transient ServiceMiseAJour serviceMiseAJour;
+    private final transient String versionApplication;
     private final transient ExecutorService executricePersistanceEtat;
+    private final transient Timer minuteriePersistanceEtat;
     private final transient AtomicReference<EtatDossierPersistant> etatPersistantEnAttente;
+    private final transient AtomicReference<EtatDossierPersistant> dernierEtatPersistantEcrit;
     private final transient AtomicBoolean ecriturePersistancePlanifiee;
 
 
@@ -256,13 +248,18 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         this.serviceGenerationLettreGreffiere = new ServiceGenerationLettreGreffiere(new EcritureDocxAtomique());
         this.diffuseurTheme = Objects.requireNonNull(diffuseurTheme, "diffuseurTheme");
         this.persistanceEtat = Objects.requireNonNull(persistanceEtat, "persistanceEtat");
+        this.serviceMiseAJour = new ServiceMiseAJour();
+        this.versionApplication = serviceMiseAJour.versionLocaleDepuisClasspath(FenetreCECDoc.class);
         this.executricePersistanceEtat = Executors.newSingleThreadExecutor(runnable -> {
             Thread thread = new Thread(runnable, "cecdoc-conf-writher");
             thread.setDaemon(true);
             return thread;
         });
         this.etatPersistantEnAttente = new AtomicReference<>();
+        this.dernierEtatPersistantEcrit = new AtomicReference<>();
         this.ecriturePersistancePlanifiee = new AtomicBoolean(false);
+        this.minuteriePersistanceEtat = new Timer(DELAI_PERSISTANCE_ETAT_MS, e -> planifierEcritureEtatCapturee());
+        this.minuteriePersistanceEtat.setRepeats(false);
         this.theme = this.diffuseurTheme.themeActuel();
         this.iconesApplication = chargerIconesApplication();
         this.iconeDialogueApplication = creerIconeDialogue(iconesApplication);
@@ -289,23 +286,18 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         zoneRecit = new ZoneTexteExemple(8, 30, "Décrivez votre parcours, votre identité sociale et les éléments factuels utiles.");
         champVilleActuelle = new ChampTexteExemple(20, "Ex: Paris");
         champNationalite = new ChampTexteExemple(20, "Ex: Française");
-        champProfession = new ChampTexteExemple(30, "Ex: Taf / Entreprise");
-        comboSituationMatrimoniale = new JComboBox<>(new String[]{"", "Célibataire", "Marié·e", "Divorcé·e", "Veuf / Veuve", "Séparé·e", "En concubinage"});
+        champProfession = new ChampTexteExemple(30, "Ex: Taf ou entreprise");
+        comboSituationMatrimoniale = new JComboBox<>(new String[]{"", "Célibataire", "Marié·e", "Divorcé·e", "Veuf·ve", "Séparé·e", "En concubinage"});
         comboSituationEnfants = new JComboBox<>(new String[]{"", "Sans enfants", "1 enfant", "2 enfants", "3 enfants ou plus", "Parent isolé·e", "Garde alternée"});
         checkboxPacs = new JCheckBox("A contracté un Pacte civil de solidarité (PACS)");
-        checkboxEffacerApresExport = new JCheckBox("Effacer automatiquement après exporter");
+        checkboxEffacerApresExport = new JCheckBox("Effacer automatiquement après export");
         boutonPieces = new JButton("Pièces justificatives");
         boutonEffacer = new JButton("Effacer les données");
         boutonAutresDocuments = new JButton("Autres documents");
         boutonGenerer = new JButton("Générer le document");
-        boutonAide = new JButton(new IconeInfo(18));
-        boutonAide.setToolTipText("Aide");
-        boutonConfiguration = new JButton(new IconeConfiguration(18));
-        boutonConfiguration.setToolTipText("Configuration");
-
         labelTitre = new JLabel("Requête de changement à l'état civil");
-        labelSousTitre = new JLabel("Formulaire guidé pour générer un document Word et un dossier PDF complet");
-        labelRaccourcis = new JLabel("Raccourcis: Ctrl/Cmd+Entrée générer, Ctrl/Cmd+J pièces, Ctrl/Cmd+I aide, Ctrl/Cmd+, configuration, Ctrl/Cmd+Z annuler");
+        labelSousTitre = new JLabel("Formulaire guidé pour générer une requête .docx/.odt et un dossier PDF complet");
+        labelRaccourcis = new JLabel("Raccourcis: Ctrl/Cmd+Entrée Générer, Ctrl/Cmd+J Pièces justificatives, Ctrl/Cmd+I Aide, Ctrl/Cmd+, Paramètres, Ctrl/Cmd+Maj+L Changement de prénoms");
 
         labelTitre.setAlignmentX(LEFT_ALIGNMENT);
         labelSousTitre.setAlignmentX(LEFT_ALIGNMENT);
@@ -341,6 +333,20 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         dossierSortieParDefaut = null;
         instantaneLettreUniversite = InstantaneLettreUniversite.vide();
         instantaneLettreAdministration = InstantaneLettreAdministration.vide();
+        gestionnaireMenusApplication = new GestionnaireMenusApplication(
+                () -> theme,
+                () -> preferenceThemeApplication,
+                this::appliquerPreferenceThemeDepuisMenu,
+                this::ouvrirDialogueConfiguration,
+                this::importerConfigurationDepuisFichier,
+                this::exporterConfigurationVersFichier,
+                this::ouvrirDialogueAide,
+                this::rechercherMiseAJourDisponible,
+                this::ouvrirDialogueAPropos
+        );
+        gestionnaireConfigurationFichier = new GestionnaireConfigurationFichier(this, () -> dossierSortieParDefaut, this::fichierParDefautDansDossierSortie);
+        gestionnaireSortiesGeneration = new GestionnaireSortiesGeneration(this, () -> dossierSortieParDefaut, this::fichierParDefautDansDossierSortie);
+        gestionnairePopupsVisibilite = new GestionnairePopupsVisibilite(this, () -> theme, this::appliquerIconeDialogue);
 
         initialiserComportementSaisie();
         initialiserMiseEnPage();
@@ -397,6 +403,7 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
 
     private static void installerLookAndFeel() {
         try {
+            System.setProperty("apple.laf.useScreenMenuBar", "false");
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ex) {
             LOGGER.log(System.Logger.Level.WARNING, "Impossible d'appliquer l'apparence système.", ex);
@@ -507,11 +514,17 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         panneauCarte.setBackground(t.palette().cardBackground());
         panneauCarte.setBorder(BorderFactory.createCompoundBorder(new LineBorder(t.palette().border(), 1, true), new EmptyBorder(t.spacing().cardInset(), t.spacing().cardInset(), t.spacing().cardInset(), t.spacing().cardInset())));
 
-        labelTitre.setForeground(t.palette().titleText());
+        if (t.mode() == ModeTheme.COMMUNISTE) {
+            labelTitre.setForeground(COULEUR_COMMUNISTE_JAUNE);
+            labelSousTitre.setForeground(COULEUR_COMMUNISTE_TEXTE_SECONDAIRE);
+            labelRaccourcis.setForeground(COULEUR_COMMUNISTE_TEXTE_SECONDAIRE);
+        } else {
+            labelTitre.setForeground(t.palette().titleText());
+            labelSousTitre.setForeground(t.palette().mutedText());
+            labelRaccourcis.setForeground(t.palette().mutedText());
+        }
         labelTitre.setFont(t.typography().title());
-        labelSousTitre.setForeground(t.palette().mutedText());
         labelSousTitre.setFont(t.typography().subtitle());
-        labelRaccourcis.setForeground(t.palette().mutedText());
         labelRaccourcis.setFont(t.typography().helper());
 
         for (JLabel sectionLabel : labelsSections) {
@@ -560,8 +573,7 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         appliquerRoleBouton(boutonEffacer, RoleBouton.DANGER);
         appliquerRoleBouton(boutonAutresDocuments, RoleBouton.SECONDARY);
         appliquerRoleBouton(boutonGenerer, RoleBouton.PRIMARY);
-        appliquerRoleBouton(boutonConfiguration, RoleBouton.ICON);
-        appliquerRoleBouton(boutonAide, RoleBouton.ICON);
+        gestionnaireMenusApplication.appliquerThemeMenus();
 
         surcoucheOccupation.appliquerTheme(t);
         mettreAJourBorduresNormales();
@@ -737,6 +749,7 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         mettreAJourExemplesPrenoms();
         appliquerThemeSelonConfiguration();
         effacerErreursValidation();
+        dernierEtatPersistantEcrit.set(construireEtatPersistantActuel());
     }
 
     private void appliquerInstantanePersistant(InstantaneDossier instantane) {
@@ -777,11 +790,25 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
     }
 
     private void appliquerThemeSelonConfiguration() {
+        if (estJourThemeCommuniste()) {
+            diffuseurTheme.publierMode(ModeTheme.COMMUNISTE);
+            synchroniserMenusTheme();
+            return;
+        }
         if (preferenceThemeApplication != null && preferenceThemeApplication.estForce()) {
             diffuseurTheme.publierMode(preferenceThemeApplication.modeForce());
+            synchroniserMenusTheme();
             return;
         }
         diffuseurTheme.publierChoixPronom(checkboxPronomNeutre.isSelected());
+        synchroniserMenusTheme();
+    }
+
+    private boolean estJourThemeCommuniste() {
+        LocalDate dateCourante = LocalDate.now();
+        int jour = dateCourante.getDayOfMonth();
+        int mois = dateCourante.getMonthValue();
+        return (jour == 8 && mois == 3) || (jour == 26 && mois == 7) || (jour == 10 && mois == 10);
     }
 
     private void appliquerDateNaissanceDepuisTexte(String texteDateNaissance) {
@@ -842,8 +869,19 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
     }
 
     private void planifierEcritureEtat() {
-        EtatDossierPersistant persistedState = new EtatDossierPersistant(construireInstantanePersistant(), checkboxEffacerApresExport.isSelected(), confirmerQuitterAvecDonnees, memoriserDonneesSaisies, preferenceThemeApplication.code(), dossierSortieParDefaut == null ? "" : dossierSortieParDefaut.toString(), construireInstantaneLettreUniversitePersistant(), construireInstantaneLettreAdministrationPersistant());
-        etatPersistantEnAttente.set(persistedState);
+        if (SwingUtilities.isEventDispatchThread()) {
+            minuteriePersistanceEtat.restart();
+            return;
+        }
+        SwingUtilities.invokeLater(minuteriePersistanceEtat::restart);
+    }
+
+    private void planifierEcritureEtatCapturee() {
+        planifierEcritureEtatAsynchrone(construireEtatPersistantActuel());
+    }
+
+    private void planifierEcritureEtatAsynchrone(EtatDossierPersistant etatPersistant) {
+        etatPersistantEnAttente.set(etatPersistant);
         if (ecriturePersistancePlanifiee.compareAndSet(false, true)) {
             executricePersistanceEtat.execute(this::viderEtatEnAttente);
         }
@@ -853,7 +891,10 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         try {
             EtatDossierPersistant persistedState = etatPersistantEnAttente.getAndSet(null);
             while (persistedState != null) {
-                persistanceEtat.sauvegarder(persistedState);
+                if (!Objects.equals(dernierEtatPersistantEcrit.get(), persistedState)) {
+                    persistanceEtat.sauvegarder(persistedState);
+                    dernierEtatPersistantEcrit.set(persistedState);
+                }
                 persistedState = etatPersistantEnAttente.getAndSet(null);
             }
         } finally {
@@ -865,8 +906,13 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
     }
 
     private void effacerEtatPersistant() {
+        minuteriePersistanceEtat.stop();
         etatPersistantEnAttente.set(null);
-        executricePersistanceEtat.execute(persistanceEtat::effacer);
+        dernierEtatPersistantEcrit.set(null);
+        executricePersistanceEtat.execute(() -> {
+            persistanceEtat.effacer();
+            dernierEtatPersistantEcrit.set(null);
+        });
     }
 
     private void initialiserPiecesParDefaut() {
@@ -976,6 +1022,8 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
     }
 
     private void initialiserMiseEnPage() {
+        barreMenusPrincipale = gestionnaireMenusApplication.construireBarreMenusPrincipale();
+        setJMenuBar(barreMenusPrincipale);
         panneauRacine.add(construireEntete(), BorderLayout.NORTH);
         panneauRacine.add(construireCarteScrollable(), BorderLayout.CENTER);
         setContentPane(panneauRacine);
@@ -991,15 +1039,6 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         topRow.setAlignmentX(LEFT_ALIGNMENT);
         topRow.add(labelTitre, BorderLayout.WEST);
 
-        JPanel panneauActionsEntete = new JPanel();
-        panneauActionsEntete.setLayout(new BoxLayout(panneauActionsEntete, BoxLayout.X_AXIS));
-        panneauActionsEntete.setOpaque(false);
-        panneauActionsEntete.add(boutonConfiguration);
-        panneauActionsEntete.add(Box.createHorizontalStrut(Math.max(1, theme.spacing().inlineGap() / 2)));
-        panneauActionsEntete.add(boutonAide);
-
-        topRow.add(panneauActionsEntete, BorderLayout.EAST);
-
         header.add(topRow);
         header.add(Box.createVerticalStrut(Math.max(1, theme.spacing().inlineGap() / 2)));
         header.add(labelSousTitre);
@@ -1007,6 +1046,198 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         header.add(labelRaccourcis);
 
         return header;
+    }
+
+    private void appliquerPreferenceThemeDepuisMenu(PreferenceThemeApplication preferenceTheme) {
+        PreferenceThemeApplication preference = preferenceTheme == null ? PreferenceThemeApplication.DEFAUT : preferenceTheme;
+        if (preference == preferenceThemeApplication) {
+            synchroniserMenusTheme();
+            return;
+        }
+        preferenceThemeApplication = preference;
+        appliquerThemeSelonConfiguration();
+        planifierEcritureEtat();
+        afficherPopupsVisibiliteSelonContexte(GestionnairePopupsVisibilite.ContexteAffichagePopup.THEME_MODIFIE_DANS_CONFIG);
+        synchroniserMenusTheme();
+    }
+
+    private void synchroniserMenusTheme() {
+        gestionnaireMenusApplication.synchroniserMenusTheme();
+    }
+
+    private void mettreAJourDisponibiliteMenus(boolean disponible) {
+        gestionnaireMenusApplication.mettreAJourDisponibiliteMenus(disponible);
+    }
+
+    private void ouvrirDialogueAPropos() {
+        String titre = "CECDoc version " + versionApplication;
+        String message = "Assistant local de génération de documents relatifs à la transition administrative pour les personnes trans.";
+        afficherMessage(message, titre, JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void rechercherMiseAJourDisponible() {
+        int confirmation = afficherConfirmation("Confirmez-vous vouloir rechercher une mise à jour disponible ?", "Rechercher une mise à jour", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (confirmation != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        SwingWorker<Void, Void> verification = new SwingWorker<>() {
+            private ServiceMiseAJour.ResultatVerificationMiseAJour resultat;
+            private String erreurMetier;
+
+            @Override
+            protected Void doInBackground() {
+                try {
+                    resultat = serviceMiseAJour.verifier(versionApplication);
+                } catch (IOException ex) {
+                    erreurMetier = "La recherche de mise à jour a échoué (erreur réseau ou lecture de version).";
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    erreurMetier = "La recherche de mise à jour a été interrompue.";
+                } catch (RuntimeException ex) {
+                    erreurMetier = "Une erreur inattendue est survenue pendant la recherche de mise à jour.";
+                }
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                terminerTache();
+                if (isCancelled()) {
+                    return;
+                }
+                if (erreurMetier != null) {
+                    afficherMessage(erreurMetier, "Mise à jour", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if (resultat == null) {
+                    afficherMessage("La vérification de mise à jour n'a pas pu aboutir.", "Mise à jour", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                if (!resultat.miseAJourDisponible()) {
+                    afficherMessage("Aucune mise à jour disponible.", "Mise à jour", JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+                int choix = afficherConfirmation("Mise à jour disponible (version " + resultat.versionDistante() + "). Voulez-vous la télécharger ?", "Mise à jour disponible", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                if (choix == JOptionPane.YES_OPTION) {
+                    ouvrirPageProjetDansNavigateur();
+                }
+            }
+        };
+
+        demarrerTache(verification, "Recherche de mise à jour en cours...", false);
+    }
+
+    private void ouvrirPageProjetDansNavigateur() {
+        try {
+            if (!Desktop.isDesktopSupported()) {
+                afficherMessageLienDepot("Ouverture du navigateur indisponible sur ce système.");
+                return;
+            }
+            Desktop desktop = Desktop.getDesktop();
+            if (!desktop.isSupported(Desktop.Action.BROWSE)) {
+                afficherMessageLienDepot("Ouverture du navigateur indisponible sur ce système.");
+                return;
+            }
+            desktop.browse(serviceMiseAJour.uriProjet());
+        } catch (IOException | SecurityException ex) {
+            afficherMessageLienDepot("Impossible d'ouvrir la page du projet dans le navigateur.");
+        }
+    }
+
+    private void afficherMessageLienDepot(String message) {
+        URI lienDepot = serviceMiseAJour.uriProjet();
+        String url = lienDepot.toString();
+        String messageHtml = "<html><body style='margin:0'>"
+                + echapperHtmlTexte(message)
+                + "<br/><br/>Lien du dépôt (cliquable) : "
+                + "<a href='" + url + "'>" + url + "</a>"
+                + "</body></html>";
+        JEditorPane zoneMessage = new JEditorPane("text/html", messageHtml);
+        zoneMessage.putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
+        zoneMessage.setFont(theme.typography().input());
+        zoneMessage.setEditable(false);
+        zoneMessage.setOpaque(false);
+        zoneMessage.setBorder(new EmptyBorder(2, 2, 2, 2));
+        zoneMessage.addHyperlinkListener(event -> {
+            if (event.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                copierLienDepotDansPressePapiers(url);
+            }
+        });
+
+        JOptionPane panneauOption = new JOptionPane(zoneMessage, JOptionPane.ERROR_MESSAGE, JOptionPane.DEFAULT_OPTION);
+        panneauOption.getAccessibleContext().setAccessibleName("Mise à jour");
+        panneauOption.getAccessibleContext().setAccessibleDescription(message + " Lien du dépôt : " + url);
+        if (iconeDialogueApplication != null) {
+            panneauOption.setIcon(iconeDialogueApplication);
+        }
+        JDialog dialogue = panneauOption.createDialog(this, "Mise à jour");
+        afficherDialogueHabille(dialogue);
+    }
+
+    private void copierLienDepotDansPressePapiers(String url) {
+        try {
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(url), null);
+            afficherMessage("Le lien du dépôt a été copié dans le presse-papiers.", "Mise à jour", JOptionPane.INFORMATION_MESSAGE);
+        } catch (IllegalStateException ex) {
+            afficherMessage("Copie du lien impossible pour le moment. Lien du dépôt : " + url, "Mise à jour", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private static String echapperHtmlTexte(String texte) {
+        if (texte == null || texte.isBlank()) {
+            return "";
+        }
+        return texte.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;");
+    }
+
+    private void importerConfigurationDepuisFichier() {
+        Path cheminConfiguration = gestionnaireConfigurationFichier.choisirFichierImport();
+        if (cheminConfiguration == null) {
+            return;
+        }
+
+        try {
+            EtatDossierPersistant etatImporte = gestionnaireConfigurationFichier.lireConfiguration(cheminConfiguration);
+            boolean suspensionPrecedente = suspendreSuiviModification;
+            suspendreSuiviModification = true;
+            try {
+                appliquerEtatPersistant(etatImporte);
+                modifie = false;
+            } finally {
+                suspendreSuiviModification = suspensionPrecedente;
+            }
+            planifierEcritureEtat();
+            afficherMessage("Configuration importée avec succès.", "Import de configuration", JOptionPane.INFORMATION_MESSAGE);
+        } catch (IOException ex) {
+            afficherMessage("Impossible d'importer la configuration sélectionnée.", "Import de configuration", JOptionPane.ERROR_MESSAGE);
+        } catch (RuntimeException ex) {
+            afficherMessage("Le fichier de configuration est invalide.", "Import de configuration", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void exporterConfigurationVersFichier() {
+        Path cible = gestionnaireConfigurationFichier.choisirFichierExport(this::afficherConfirmation);
+        if (cible == null) {
+            return;
+        }
+
+        try {
+            gestionnaireConfigurationFichier.sauvegarderConfigurationXml(cible, construireEtatPersistantActuel());
+            afficherMessage("Configuration exportée avec succès.", "Export de configuration", JOptionPane.INFORMATION_MESSAGE);
+        } catch (IOException ex) {
+            afficherMessage("Impossible d'exporter la configuration.", "Export de configuration", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private EtatDossierPersistant construireEtatPersistantActuel() {
+        return new EtatDossierPersistant(construireInstantanePersistant(), checkboxEffacerApresExport.isSelected(), confirmerQuitterAvecDonnees, memoriserDonneesSaisies, preferenceThemeApplication.code(), dossierSortieParDefaut == null ? "" : dossierSortieParDefaut.toString(), construireInstantaneLettreUniversitePersistant(), construireInstantaneLettreAdministrationPersistant());
+    }
+
+    private void declencherFermeture() {
+        dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
     }
 
     private JComponent construireCarteScrollable() {
@@ -1033,7 +1264,7 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
 
         y = ajouterTitreSection(panneauCarte, gbc, y, "Identité");
         y = ajouterLigneLibellee(panneauCarte, gbc, y, "Prénoms à l'état civil", champPrenomsEtatCivil);
-        y = ajouterLigneLibellee(panneauCarte, gbc, y, "Prénoms d'usage / demandés", champPrenomsUsage);
+        y = ajouterLigneLibellee(panneauCarte, gbc, y, "Prénoms d'usage et demandés", champPrenomsUsage);
         y = ajouterLigneLibellee(panneauCarte, gbc, y, "Nom de famille", champNomFamille);
         y = ajouterLigneLibellee(panneauCarte, gbc, y, "Date de naissance", panneauDateNaissance);
         y = ajouterLigneLibellee(panneauCarte, gbc, y, "Lieu de naissance", champLieuNaissance);
@@ -1043,7 +1274,7 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         y = ajouterTitreSection(panneauCarte, gbc, y, "Situation personnelle");
         scrollAdresse = creerScrollStyle(champAdresse, 92);
         y = ajouterLigneLibellee(panneauCarte, gbc, y, "Adresse", scrollAdresse);
-        y = ajouterLigneLibellee(panneauCarte, gbc, y, "Profession / Employeur", champProfession);
+        y = ajouterLigneLibellee(panneauCarte, gbc, y, "Profession et employeur", champProfession);
         y = ajouterLigneLibellee(panneauCarte, gbc, y, "Statut matrimonial", comboSituationMatrimoniale);
         y = ajouterLigneLibellee(panneauCarte, gbc, y, "Situation parentale", comboSituationEnfants);
 
@@ -1255,17 +1486,10 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         } else {
             button.setFont(theme.typography().buttonSecondary());
         }
-        if (role == RoleBouton.ICON) {
-            button.setOpaque(false);
-            button.setContentAreaFilled(false);
-            button.setBorderPainted(false);
-            button.setBorder(new EmptyBorder(0, 0, 0, 0));
-        } else {
-            button.setOpaque(true);
-            button.setContentAreaFilled(true);
-            button.setBorderPainted(true);
-            button.setBorder(new EmptyBorder(theme.spacing().buttonInsetY(), theme.spacing().buttonInsetX(), theme.spacing().buttonInsetY(), theme.spacing().buttonInsetX()));
-        }
+        button.setOpaque(true);
+        button.setContentAreaFilled(true);
+        button.setBorderPainted(true);
+        button.setBorder(new EmptyBorder(theme.spacing().buttonInsetY(), theme.spacing().buttonInsetX(), theme.spacing().buttonInsetY(), theme.spacing().buttonInsetX()));
         mettreAJourVisuelBouton(button, role);
         for (javax.swing.event.ChangeListener listener : button.getChangeListeners()) {
             if (listener instanceof EcouteurChangementBoutonTheme) {
@@ -1283,15 +1507,6 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
 
     private void mettreAJourVisuelBouton(JButton button, RoleBouton role) {
         TokensEtatBouton tokens = tokensPourRole(role);
-        if (role == RoleBouton.ICON) {
-            button.setOpaque(false);
-            button.setContentAreaFilled(false);
-            button.setBorderPainted(false);
-            button.setBackground(new Color(0, 0, 0, 0));
-            button.setForeground(tokens.foreground());
-            button.setBorder(new EmptyBorder(0, 0, 0, 0));
-            return;
-        }
         if (!button.isEnabled()) {
             button.setBackground(tokens.disabledBackground());
             button.setForeground(tokens.disabledForeground());
@@ -1320,7 +1535,6 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
             case PRIMARY -> theme.palette().primaryButton();
             case SECONDARY -> theme.palette().secondaryButton();
             case DANGER -> theme.palette().dangerButton();
-            case ICON -> theme.palette().iconButton();
         };
     }
 
@@ -1359,13 +1573,12 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
             appliquerThemeSelonConfiguration();
             mettreAJourExemplePrenomsUsage();
             marquerModifie();
-            afficherPopupsVisibiliteSelonContexte(ContexteAffichagePopup.PRONOM_NEUTRE_BASCULE);
+            afficherPopupsVisibiliteSelonContexte(GestionnairePopupsVisibilite.ContexteAffichagePopup.PRONOM_NEUTRE_BASCULE);
+            synchroniserMenusTheme();
         });
 
         comboSexeEtatCivil.addActionListener(e -> mettreAJourExemplesPrenoms());
 
-        boutonConfiguration.addActionListener(e -> ouvrirDialogueConfiguration());
-        boutonAide.addActionListener(e -> ouvrirDialogueAide());
         boutonPieces.addActionListener(e -> ouvrirDialoguePieces());
         boutonEffacer.addActionListener(e -> confirmerEffacement());
         boutonAutresDocuments.addActionListener(e -> ouvrirDialogueAutresDocuments());
@@ -1381,8 +1594,6 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         boutonEffacer.setMnemonic(KeyEvent.VK_F);
         boutonAutresDocuments.setMnemonic(KeyEvent.VK_O);
         boutonGenerer.setMnemonic(KeyEvent.VK_G);
-        boutonAide.setMnemonic(KeyEvent.VK_I);
-        boutonConfiguration.setMnemonic(KeyEvent.VK_C);
     }
 
     private void initialiserRaccourcisClavier() {
@@ -1406,7 +1617,7 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (boutonPieces.isEnabled()) {
-                    boutonPieces.doClick();
+                    ouvrirDialoguePieces();
                 }
             }
         });
@@ -1416,8 +1627,8 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         carteActions.put("open-help", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (boutonAide.isEnabled()) {
-                    boutonAide.doClick();
+                if (tacheActive == null) {
+                    ouvrirDialogueAide();
                 }
             }
         });
@@ -1426,9 +1637,17 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         carteActions.put("open-configuration", new AbstractAction() {
 
             public void actionPerformed(ActionEvent e) {
-                if (boutonConfiguration.isEnabled()) {
-                    boutonConfiguration.doClick();
+                if (tacheActive == null) {
+                    ouvrirDialogueConfiguration();
                 }
+            }
+        });
+
+        carteEntrees.put(KeyStroke.getKeyStroke(KeyEvent.VK_Q, masqueMenu), "close-window");
+        carteActions.put("close-window", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                declencherFermeture();
             }
         });
 
@@ -1457,51 +1676,19 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
                     return;
                 }
                 popupsVisibiliteInitialises = true;
-                SwingUtilities.invokeLater(() -> afficherPopupsVisibiliteSelonContexte(ContexteAffichagePopup.DEMARRAGE));
+                SwingUtilities.invokeLater(() -> afficherPopupsVisibiliteSelonContexte(GestionnairePopupsVisibilite.ContexteAffichagePopup.DEMARRAGE));
             }
         });
     }
 
-    private void afficherPopupsVisibiliteSelonContexte(ContexteAffichagePopup contexte) {
-        LocalDate dateCourante = LocalDate.now();
-        int jour = dateCourante.getDayOfMonth();
-        int mois = dateCourante.getMonthValue();
-        ModeTheme modeActif = determinerModeThemeActif();
-
-        if (jour == 17 && mois == 5 && contexte == ContexteAffichagePopup.DEMARRAGE) {
-            afficherPopupVisibilite(TypePopupVisibilite.LUTTE_LGBTQIPHOBIES);
-            return;
-        }
-        if (jour == 11 && mois == 10 && contexte == ContexteAffichagePopup.DEMARRAGE) {
-            afficherPopupVisibilite(TypePopupVisibilite.COMING_OUT_DAY);
-            return;
-        }
-        if (jour == 24 && mois == 5 && contexte == ContexteAffichagePopup.DEMARRAGE) {
-            afficherPopupVisibilite(TypePopupVisibilite.VISIBILITE_PANSEXUELLE);
-            return;
-        }
-        if (jour == 23 && mois == 9 && contexte == ContexteAffichagePopup.DEMARRAGE) {
-            afficherPopupVisibilite(TypePopupVisibilite.JOURNEE_BISEXUALITE);
-            return;
-        }
-        if (jour == 31 && mois == 3 && contexte == ContexteAffichagePopup.DEMARRAGE) {
-            afficherPopupVisibilite(TypePopupVisibilite.TDOV);
-            return;
-        }
-        if (jour == 14 && mois == 7 && modeActif == ModeTheme.NON_BINAIRE && (contexte == ContexteAffichagePopup.DEMARRAGE || contexte == ContexteAffichagePopup.PRONOM_NEUTRE_BASCULE || contexte == ContexteAffichagePopup.THEME_MODIFIE_DANS_CONFIG)) {
-            afficherPopupVisibilite(TypePopupVisibilite.VISIBILITE_NON_BINAIRE);
-            return;
-        }
-        if (jour == 26 && mois == 4 && modeActif == ModeTheme.LESBIEN && (contexte == ContexteAffichagePopup.DEMARRAGE || contexte == ContexteAffichagePopup.THEME_MODIFIE_DANS_CONFIG)) {
-            afficherPopupVisibilite(TypePopupVisibilite.VISIBILITE_LESBIENNE);
-            return;
-        }
-        if (jour == 8 && mois == 11 && modeActif == ModeTheme.INTERSEXE && (contexte == ContexteAffichagePopup.DEMARRAGE || contexte == ContexteAffichagePopup.THEME_MODIFIE_DANS_CONFIG)) {
-            afficherPopupVisibilite(TypePopupVisibilite.VISIBILITE_INTERSEXE);
-        }
+    private void afficherPopupsVisibiliteSelonContexte(GestionnairePopupsVisibilite.ContexteAffichagePopup contexte) {
+        gestionnairePopupsVisibilite.afficherSelonContexte(contexte, determinerModeThemeActif());
     }
 
     private ModeTheme determinerModeThemeActif() {
+        if (theme != null && theme.mode() != null) {
+            return theme.mode();
+        }
         if (preferenceThemeApplication != null && preferenceThemeApplication.estForce()) {
             ModeTheme force = preferenceThemeApplication.modeForce();
             if (force != null) {
@@ -1511,102 +1698,12 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         return checkboxPronomNeutre.isSelected() ? ModeTheme.NON_BINAIRE : ModeTheme.TRANS;
     }
 
-    private void afficherPopupVisibilite(TypePopupVisibilite typePopupVisibilite) {
-        afficherPopupVisibilite(creerConfigurationPopup(typePopupVisibilite));
-    }
-
     int afficherPopupsVisibiliteEnSequencePourTest() {
-        int nombrePopups = 0;
-        for (TypePopupVisibilite typePopupVisibilite : TypePopupVisibilite.values()) {
-            afficherPopupVisibilite(typePopupVisibilite);
-            nombrePopups++;
-        }
-        return nombrePopups;
-    }
-
-    private ConfigurationPopupVisibilite creerConfigurationPopup(TypePopupVisibilite typePopupVisibilite) {
-        return switch (typePopupVisibilite) {
-            case TDOV ->
-                    new ConfigurationPopupVisibilite("TDoV – Trans Day of Visibility", "TDoV – Trans Day of Visibility", "C'est le TDoV t'es obligé·e d'être visible bg ! Sois visible ! T'es pas visible ?? Sois visible putain !", FondPopupVisibilite.TRANS, theme.palette().bodyText(), theme.palette().bodyText(), "Tkt frr jsuis un max visible");
-            case VISIBILITE_NON_BINAIRE ->
-                    new ConfigurationPopupVisibilite("Journée internationale de visibilité des personnes non-binaires", "Journée internationale de visibilité des personnes non-binaires", "RIP la fête nationale ici c'est les blue hair and pronouns qu'on célèbre aujourd'hui !", FondPopupVisibilite.NON_BINAIRE, theme.palette().bodyText(), theme.palette().bodyText(), "Se teindre les cheveux");
-            case VISIBILITE_LESBIENNE ->
-                    new ConfigurationPopupVisibilite("Journée internationale de visibilité lesbienne", "Journée internationale de visibilité lesbienne", "Bravo les lesbiennes ! Continuez comme ça.", FondPopupVisibilite.LESBIEN, theme.palette().bodyText(), theme.palette().bodyText(), "Bravo à moi, tqt j'ai pas prévu d'arrêter");
-            case VISIBILITE_INTERSEXE ->
-                    new ConfigurationPopupVisibilite("Journée internationale de visibilité intersexe", "Journée internationale de visibilité intersexe", "La visibilité intersexe n’est pas optionnelle ! 😍\n(Même si t’as dû choisir ce thème dans les réglages)", FondPopupVisibilite.INTERSEXE, COULEUR_BLANCHE, COULEUR_BLANCHE, "Ok pétasse");
-            case LUTTE_LGBTQIPHOBIES ->
-                    new ConfigurationPopupVisibilite("Journée internationale contre l'homophobie, la transphobie, et la biphobie", "Journée internationale contre l'homophobie, la transphobie, et la biphobie", "Et la biphobie, on oublie pas la biphobie ! Ces trè grave...", FondPopupVisibilite.RAINBOW, COULEUR_BLANCHE, COULEUR_BLANCHE, "Jsuis pas biphobe jte jure");
-            case COMING_OUT_DAY ->
-                    new ConfigurationPopupVisibilite("Coming out day", "Coming out day", "N'oublie pas de dire à absolument tout le monde que tu es elgéteubé·e aujourd'hui ! Ces trè importan.", FondPopupVisibilite.RAINBOW, COULEUR_BLANCHE, COULEUR_BLANCHE, "Alexa, joue du Diana Ross");
-            case VISIBILITE_PANSEXUELLE ->
-                    new ConfigurationPopupVisibilite("Journée internationale de la visibilité pansexuelle", "Journée internationale de la visibilité pansexuelle", "C'est la journée spéciale confused slutbag !", FondPopupVisibilite.PANSEXUEL, theme.palette().bodyText(), theme.palette().bodyText(), "Slut-shame les pans");
-            case JOURNEE_BISEXUALITE ->
-                    new ConfigurationPopupVisibilite("Journée de la bisexualité", "Journée de la bisexualité", "À voile et à vapeur, iels bouffent à tous les rateliers !", FondPopupVisibilite.BISEXUEL, COULEUR_BLANCHE, COULEUR_BLANCHE, "La biphobie est une vraie oppression, source: tkt frr");
-        };
-    }
-
-    private void afficherPopupVisibilite(ConfigurationPopupVisibilite configurationPopup) {
-        JDialog dialogue = new JDialog(this, configurationPopup.titreFenetre(), true);
-        appliquerIconeDialogue(dialogue);
-
-        PanneauFondPopup panneauFond = new PanneauFondPopup(configurationPopup.fond());
-        panneauFond.setLayout(new BorderLayout(0, theme.spacing().blockGap()));
-        panneauFond.setBorder(new EmptyBorder(theme.spacing().cardInset(), theme.spacing().cardInset(), theme.spacing().cardInset(), theme.spacing().cardInset()));
-
-        JLabel labelTitrePopup = new JLabel(configurationPopup.titreAffiche());
-        labelTitrePopup.setFont(theme.typography().title().deriveFont(Font.BOLD, theme.typography().title().getSize2D() + 6f));
-        labelTitrePopup.setForeground(configurationPopup.couleurTitre());
-        labelTitrePopup.setHorizontalAlignment(JLabel.CENTER);
-
-        JLabel labelMessagePopup = new JLabel("<html><div style='text-align:center;width:720px;'>" + echapperHtml(configurationPopup.message()).replace("\n", "<br/>") + "</div></html>");
-        labelMessagePopup.setFont(theme.typography().section());
-        labelMessagePopup.setForeground(configurationPopup.couleurMessage());
-        labelMessagePopup.setHorizontalAlignment(JLabel.CENTER);
-
-        JPanel panneauTexte = new JPanel();
-        panneauTexte.setOpaque(false);
-        panneauTexte.setLayout(new BoxLayout(panneauTexte, BoxLayout.Y_AXIS));
-        labelTitrePopup.setAlignmentX(Component.CENTER_ALIGNMENT);
-        labelMessagePopup.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panneauTexte.add(Box.createVerticalStrut(Math.max(6, theme.spacing().inlineGap())));
-        panneauTexte.add(labelTitrePopup);
-        panneauTexte.add(Box.createVerticalStrut(theme.spacing().blockGap()));
-        panneauTexte.add(labelMessagePopup);
-        panneauTexte.add(Box.createVerticalGlue());
-
-        JButton boutonFermerPopup = new JButton(configurationPopup.libelleBouton());
-        StyliseurBoutonTheme.appliquer(boutonFermerPopup, theme.palette().primaryButton(), theme, theme.typography().buttonPrimary());
-        boutonFermerPopup.addActionListener(e -> dialogue.dispose());
-
-        JPanel panneauActions = new JPanel();
-        panneauActions.setOpaque(false);
-        panneauActions.setLayout(new BoxLayout(panneauActions, BoxLayout.X_AXIS));
-        panneauActions.setBorder(new EmptyBorder(theme.spacing().inlineGap(), 0, Math.max(theme.spacing().inlineGap(), theme.spacing().buttonInsetY()), 0));
-        panneauActions.add(Box.createHorizontalGlue());
-        panneauActions.add(boutonFermerPopup);
-
-        panneauFond.add(panneauTexte, BorderLayout.CENTER);
-        panneauFond.add(panneauActions, BorderLayout.SOUTH);
-
-        dialogue.setContentPane(panneauFond);
-        dialogue.setMinimumSize(new Dimension(780, 460));
-        dialogue.pack();
-        dialogue.setSize(Math.max(860, dialogue.getWidth()), Math.max(500, dialogue.getHeight()));
-        dialogue.setLocationRelativeTo(this);
-        dialogue.getRootPane().setDefaultButton(boutonFermerPopup);
-        dialogue.setVisible(true);
-        dialogue.dispose();
-    }
-
-    private String echapperHtml(String texte) {
-        if (texte == null || texte.isEmpty()) {
-            return "";
-        }
-        return texte.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+        return gestionnairePopupsVisibilite.afficherTousEnSequencePourTest();
     }
 
     private void initialiserOrdreFocus() {
-        List<Component> order = List.of(boutonConfiguration, boutonAide, checkboxChangementPrenoms, checkboxPronomNeutre, champPrenomsEtatCivil, champPrenomsUsage, champNomFamille, comboJourNaissance, comboMoisNaissance, comboAnneeNaissance, champLieuNaissance, comboSexeEtatCivil, champNationalite, champAdresse, champProfession, comboSituationMatrimoniale, comboSituationEnfants, checkboxPacs, champVilleActuelle, zoneTribunal, zoneRecit, boutonPieces, boutonEffacer, boutonAutresDocuments, boutonGenerer);
+        List<Component> order = List.of(checkboxChangementPrenoms, checkboxPronomNeutre, champPrenomsEtatCivil, champPrenomsUsage, champNomFamille, comboJourNaissance, comboMoisNaissance, comboAnneeNaissance, champLieuNaissance, comboSexeEtatCivil, champNationalite, champAdresse, champProfession, comboSituationMatrimoniale, comboSituationEnfants, checkboxPacs, champVilleActuelle, zoneTribunal, zoneRecit, boutonPieces, boutonEffacer, boutonAutresDocuments, boutonGenerer);
         setFocusTraversalPolicyProvider(true);
         setFocusTraversalPolicy(new PolitiqueFocusOrdonnee(order));
     }
@@ -1787,8 +1884,6 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         definirAccessibiliteComposant(boutonEffacer, "Effacer les données", "Efface les données actuellement saisies");
         definirAccessibiliteComposant(boutonAutresDocuments, "Autres documents", "Ouvre les formulaires de génération de lettres complémentaires");
         definirAccessibiliteComposant(boutonPieces, "Pièces justificatives", "Ouvre la gestion des pièces justificatives et des fichiers attachés");
-        definirAccessibiliteComposant(boutonConfiguration, "Configuration de l'application", "Ouvre les paramètres de l'application");
-        definirAccessibiliteComposant(boutonAide, "Aide", "Ouvre la fenêtre d'aide");
 
         comboJourNaissance.setToolTipText("Jour de naissance");
         comboMoisNaissance.setToolTipText("Mois de naissance");
@@ -1805,6 +1900,10 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         labelMessageFormulaire.getAccessibleContext().setAccessibleDescription("Affiche les erreurs ou les informations liées au formulaire");
         surcoucheOccupation.getAccessibleContext().setAccessibleName("Indicateur d'opération en cours");
         surcoucheOccupation.getAccessibleContext().setAccessibleDescription("Indique une opération longue et propose une annulation si disponible");
+        if (barreMenusPrincipale != null) {
+            barreMenusPrincipale.getAccessibleContext().setAccessibleName("Barre de menus");
+            barreMenusPrincipale.getAccessibleContext().setAccessibleDescription("Menus fichiers, thème et aide");
+        }
     }
 
     private void definirAccessibiliteComposant(JComponent composant, String nom, String description) {
@@ -1820,17 +1919,16 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
     }
 
     private void ouvrirDialogueConfiguration() {
-        DialogueConfiguration dialogue = new DialogueConfiguration(this, theme, confirmerQuitterAvecDonnees, memoriserDonneesSaisies, preferenceThemeApplication, dossierSortieParDefaut == null ? "" : dossierSortieParDefaut.toString());
+        DialogueConfiguration dialogue = new DialogueConfiguration(this, theme, confirmerQuitterAvecDonnees, memoriserDonneesSaisies, dossierSortieParDefaut == null ? "" : dossierSortieParDefaut.toString());
         appliquerIconeDialogue(dialogue);
         dialogue.setVisible(true);
         if (dialogue.estEnregistre()) {
             confirmerQuitterAvecDonnees = dialogue.confirmerQuitterAvecDonnees();
             memoriserDonneesSaisies = dialogue.memoriserDonneesSaisies();
-            preferenceThemeApplication = dialogue.preferenceTheme();
             dossierSortieParDefaut = normaliserDossierSortieParDefaut(dialogue.dossierSortieParDefaut());
             appliquerThemeSelonConfiguration();
             planifierEcritureEtat();
-            afficherPopupsVisibiliteSelonContexte(ContexteAffichagePopup.THEME_MODIFIE_DANS_CONFIG);
+            synchroniserMenusTheme();
         }
     }
 
@@ -1931,24 +2029,38 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
                 ? normaliserSexeBinaire(instantaneLettreAdministration.sexeApres(), sexeOppose(sexeAvantReference))
                 : sexeOppose(sexeEtatCivilReference);
 
-        String prenomsEtatCivilPartages = premiereValeurNonVide(prenomsEtatCivilFormulaire, nettoyerTexte(instantaneLettreAdministration.prenomsEtatCivil()), nettoyerTexte(instantaneLettreUniversite.prenomEtatCivil()));
-        String prenomEtatCivilPartage = premierPrenom(prenomsEtatCivilPartages);
-        String prenomUsagePartage = premierPrenom(premiereValeurNonVide(prenomsUsageFormulaire, nettoyerTexte(instantaneLettreAdministration.prenomUsage()), nettoyerTexte(instantaneLettreUniversite.prenomUsage()), prenomEtatCivilPartage));
+        SynchronisationPrenomsFormulaires.Sortie sortieSynchronisationPrenoms = SynchronisationPrenomsFormulaires.synchroniser(
+                new SynchronisationPrenomsFormulaires.Entree(
+                        checkboxChangementPrenoms.isSelected(),
+                        prenomsUsageFormulaire,
+                        nettoyerTexte(instantaneLettreUniversite.prenomUsage()),
+                        nettoyerTexte(instantaneLettreAdministration.prenomUsage()),
+                        prenomsEtatCivilFormulaire,
+                        nettoyerTexte(instantaneLettreUniversite.prenomEtatCivil()),
+                        nettoyerTexte(instantaneLettreAdministration.prenomsEtatCivil()),
+                        nettoyerTexte(instantaneLettreAdministration.prenomNaissance())
+                )
+        );
+
+        String prenomsUsagePrincipalPartages = sortieSynchronisationPrenoms.prenomsUsagePrincipal();
+        String prenomUsageUniversitePartage = sortieSynchronisationPrenoms.prenomUsageUniversite();
+        String prenomUsageAdministrationPartage = sortieSynchronisationPrenoms.prenomUsageAdministration();
+        String prenomsEtatCivilPrincipalPartages = sortieSynchronisationPrenoms.prenomsEtatCivilPrincipal();
+        String prenomEtatCivilUniversitePartage = sortieSynchronisationPrenoms.prenomEtatCivilUniversite();
+        String prenomsEtatCivilAdministrationPartages = sortieSynchronisationPrenoms.prenomsEtatCivilAdministration();
+        String prenomsNaissancePartages = sortieSynchronisationPrenoms.prenomsNaissanceAdministration();
 
         String nomPartage = premiereValeurNonVide(nettoyerTexte(instantaneLettreUniversite.nom()), nettoyerTexte(instantaneLettreAdministration.nom()), nomFormulaire);
         String adresseMultilignePartage = premiereValeurNonVide(nettoyerTexte(instantaneLettreUniversite.adressePostale()), nettoyerTexte(instantaneLettreAdministration.adressePostale()), adresseFormulaire);
         String villePartage = premiereValeurNonVide(nettoyerTexte(instantaneLettreUniversite.villeActuelle()), nettoyerTexte(instantaneLettreAdministration.villeActuelle()), villeFormulaire);
         String telephonePartage = premiereValeurNonVide(nettoyerTexte(instantaneLettreUniversite.telephonePortable()), nettoyerTexte(instantaneLettreAdministration.telephonePortable()));
         String courrielPartage = premiereValeurNonVide(nettoyerTexte(instantaneLettreUniversite.courriel()), nettoyerTexte(instantaneLettreAdministration.courriel()));
-        String prenomsNaissancePartages = checkboxChangementPrenoms.isSelected()
-                ? premiereValeurNonVide(prenomsEtatCivilPartages, nettoyerTexte(instantaneLettreAdministration.prenomNaissance()))
-                : nettoyerTexte(instantaneLettreAdministration.prenomNaissance());
 
         instantaneLettreUniversite = new InstantaneLettreUniversite(
                 genreActuelReference,
                 civiliteDepuisGenre(genreActuelReference),
-                premiereValeurNonVide(premierPrenom(instantaneLettreUniversite.prenomUsage()), prenomUsagePartage),
-                premiereValeurNonVide(premierPrenom(instantaneLettreUniversite.prenomEtatCivil()), prenomEtatCivilPartage),
+                prenomUsageUniversitePartage,
+                prenomEtatCivilUniversitePartage,
                 premiereValeurNonVide(nettoyerTexte(instantaneLettreUniversite.nom()), nomPartage),
                 premiereValeurNonVide(nettoyerTexte(instantaneLettreUniversite.adressePostale()), adresseMultilignePartage),
                 premiereValeurNonVide(nettoyerTexte(instantaneLettreUniversite.telephonePortable()), telephonePartage),
@@ -1960,8 +2072,8 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         );
 
         instantaneLettreAdministration = new InstantaneLettreAdministration(
-                premiereValeurNonVide(premierPrenom(instantaneLettreAdministration.prenomUsage()), prenomUsagePartage),
-                premiereValeurNonVide(nettoyerTexte(instantaneLettreAdministration.prenomsEtatCivil()), prenomsEtatCivilPartages),
+                prenomUsageAdministrationPartage,
+                prenomsEtatCivilAdministrationPartages,
                 premiereValeurNonVide(nettoyerTexte(instantaneLettreAdministration.nom()), nomPartage),
                 premiereValeurNonVide(nettoyerTexte(instantaneLettreAdministration.adressePostale()), adresseMultilignePartage),
                 premiereValeurNonVide(nettoyerTexte(instantaneLettreAdministration.telephonePortable()), telephonePartage),
@@ -1981,8 +2093,8 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         );
 
         appliquerChampsPartagesAuFormulairePrincipal(
-                premiereValeurNonVide(prenomsEtatCivilFormulaire, prenomsEtatCivilPartages, prenomEtatCivilPartage),
-                premiereValeurNonVide(prenomsUsageFormulaire, prenomUsagePartage),
+                prenomsEtatCivilPrincipalPartages,
+                prenomsUsagePrincipalPartages,
                 nomPartage,
                 adresseMultilignePartage,
                 villePartage
@@ -1997,9 +2109,29 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         String adresseMultiligne = nettoyerTexte(instantane.adressePostale());
         String ville = nettoyerTexte(instantane.villeActuelle());
 
-        instantaneLettreAdministration = new InstantaneLettreAdministration(premiereValeurNonVide(prenomUsage, instantaneLettreAdministration.prenomUsage()), premiereValeurNonVide(instantaneLettreAdministration.prenomsEtatCivil(), prenomEtatCivil), premiereValeurNonVide(nom, instantaneLettreAdministration.nom()), premiereValeurNonVide(instantane.adressePostale(), instantaneLettreAdministration.adressePostale()), premiereValeurNonVide(instantane.telephonePortable(), instantaneLettreAdministration.telephonePortable()), premiereValeurNonVide(instantane.courriel(), instantaneLettreAdministration.courriel()), instantaneLettreAdministration.adresseDestinataire(), instantaneLettreAdministration.changementPrenom(), nettoyerTexte(instantaneLettreAdministration.prenomNaissance()), instantaneLettreAdministration.changementSexe(), instantaneLettreAdministration.sexeAvant(), instantaneLettreAdministration.sexeApres(), instantaneLettreAdministration.changementPrenomFaitEnMairie(), instantaneLettreAdministration.numeroDecisionMairie(), instantaneLettreAdministration.dateDecisionMairie(), instantaneLettreAdministration.tribunalCompetent(), instantaneLettreAdministration.numeroJugement(), premiereValeurNonVide(ville, instantaneLettreAdministration.villeActuelle()));
+        instantaneLettreAdministration = new InstantaneLettreAdministration(
+                premiereValeurNonVide(prenomUsage, instantaneLettreAdministration.prenomUsage()),
+                premiereValeurNonVide(prenomEtatCivil, instantaneLettreAdministration.prenomsEtatCivil()),
+                premiereValeurNonVide(nom, instantaneLettreAdministration.nom()),
+                premiereValeurNonVide(instantane.adressePostale(), instantaneLettreAdministration.adressePostale()),
+                premiereValeurNonVide(instantane.telephonePortable(), instantaneLettreAdministration.telephonePortable()),
+                premiereValeurNonVide(instantane.courriel(), instantaneLettreAdministration.courriel()),
+                instantaneLettreAdministration.adresseDestinataire(),
+                instantaneLettreAdministration.changementPrenom(),
+                nettoyerTexte(instantaneLettreAdministration.prenomNaissance()),
+                instantaneLettreAdministration.changementSexe(),
+                instantaneLettreAdministration.sexeAvant(),
+                instantaneLettreAdministration.sexeApres(),
+                instantaneLettreAdministration.changementPrenomFaitEnMairie(),
+                instantaneLettreAdministration.numeroDecisionMairie(),
+                instantaneLettreAdministration.dateDecisionMairie(),
+                instantaneLettreAdministration.tribunalCompetent(),
+                instantaneLettreAdministration.numeroJugement(),
+                premiereValeurNonVide(ville, instantaneLettreAdministration.villeActuelle())
+        );
 
-        appliquerChampsPartagesAuFormulairePrincipal(premiereValeurNonVide(nettoyerTexte(instantaneLettreAdministration.prenomsEtatCivil()), prenomEtatCivil), prenomUsage, nom, adresseMultiligne, ville);
+        String prenomsEtatCivilPrincipal = checkboxChangementPrenoms.isSelected() ? "" : prenomEtatCivil;
+        appliquerChampsPartagesAuFormulairePrincipal(prenomsEtatCivilPrincipal, prenomUsage, nom, adresseMultiligne, ville);
         synchroniserInstantanesAvecFormulairePrincipal();
     }
 
@@ -2010,9 +2142,25 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         String adresseMultiligne = nettoyerTexte(instantane.adressePostale());
         String ville = nettoyerTexte(instantane.villeActuelle());
 
-        instantaneLettreUniversite = new InstantaneLettreUniversite(instantaneLettreUniversite.genreActuel(), instantaneLettreUniversite.civiliteSouhaitee(), premiereValeurNonVide(prenomUsage, instantaneLettreUniversite.prenomUsage()), premiereValeurNonVide(prenomEtatCivil, instantaneLettreUniversite.prenomEtatCivil()), premiereValeurNonVide(nom, instantaneLettreUniversite.nom()), premiereValeurNonVide(instantane.adressePostale(), instantaneLettreUniversite.adressePostale()), premiereValeurNonVide(instantane.telephonePortable(), instantaneLettreUniversite.telephonePortable()), premiereValeurNonVide(instantane.courriel(), instantaneLettreUniversite.courriel()), instantaneLettreUniversite.ine(), instantaneLettreUniversite.nomUniversite(), instantaneLettreUniversite.explicationParcours(), premiereValeurNonVide(ville, instantaneLettreUniversite.villeActuelle()));
+        instantaneLettreUniversite = new InstantaneLettreUniversite(
+                instantaneLettreUniversite.genreActuel(),
+                instantaneLettreUniversite.civiliteSouhaitee(),
+                premiereValeurNonVide(prenomUsage, instantaneLettreUniversite.prenomUsage()),
+                premiereValeurNonVide(prenomEtatCivil, instantaneLettreUniversite.prenomEtatCivil()),
+                premiereValeurNonVide(nom, instantaneLettreUniversite.nom()),
+                premiereValeurNonVide(instantane.adressePostale(), instantaneLettreUniversite.adressePostale()),
+                premiereValeurNonVide(instantane.telephonePortable(), instantaneLettreUniversite.telephonePortable()),
+                premiereValeurNonVide(instantane.courriel(), instantaneLettreUniversite.courriel()),
+                instantaneLettreUniversite.ine(),
+                instantaneLettreUniversite.nomUniversite(),
+                instantaneLettreUniversite.explicationParcours(),
+                premiereValeurNonVide(ville, instantaneLettreUniversite.villeActuelle())
+        );
 
-        appliquerChampsPartagesAuFormulairePrincipal(premiereValeurNonVide(instantane.prenomsEtatCivil(), prenomEtatCivil), prenomUsage, nom, adresseMultiligne, ville);
+        String prenomsEtatCivilPrincipal = checkboxChangementPrenoms.isSelected()
+                ? nettoyerTexte(instantane.prenomNaissance())
+                : premiereValeurNonVide(instantane.prenomsEtatCivil(), prenomEtatCivil);
+        appliquerChampsPartagesAuFormulairePrincipal(prenomsEtatCivilPrincipal, prenomUsage, nom, adresseMultiligne, ville);
         synchroniserInstantanesAvecFormulairePrincipal();
     }
 
@@ -2175,20 +2323,28 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         if (tacheActive != null) {
             return;
         }
-        if (!validerAvantGeneration()) {
+        boolean validationOk;
+        try {
+            validationOk = validerAvantGeneration();
+        } catch (NoClassDefFoundError | ExceptionInInitializerError erreurChargement) {
+            LOGGER.log(System.Logger.Level.ERROR, "Composante applicative introuvable pendant la validation.", erreurChargement);
+            afficherMessage("La génération est impossible car l'application est incomplète au runtime.\nRecompilez le projet puis relancez l'application (mvn clean package).", "Erreur de chargement", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        if (!validationOk) {
             return;
         }
 
         DonneesDossier donneesDossier = serviceApplication.construireDonneesDossier(construireInstantane());
 
-        File fichierSortieRequeteDocx = choisirDestinationRequeteDocx();
-        if (fichierSortieRequeteDocx == null) {
+        File fichierSortieRequete = gestionnaireSortiesGeneration.choisirDestinationRequete();
+        if (fichierSortieRequete == null) {
             return;
         }
 
         File fichierSortiePdf = null;
-        if (aDesPiecesJointesExportables(donneesDossier) && demanderEnregistrementPdf()) {
-            fichierSortiePdf = choisirDestinationDossierPdf(fichierSortieRequeteDocx.toPath());
+        if (gestionnaireSortiesGeneration.aDesPiecesJointesExportables(donneesDossier) && demanderEnregistrementPdf()) {
+            fichierSortiePdf = gestionnaireSortiesGeneration.choisirDestinationDossierPdf(fichierSortieRequete.toPath());
             if (fichierSortiePdf == null) {
                 return;
             }
@@ -2196,18 +2352,18 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
 
         File fichierSortieLettreGreffiere = null;
         if (demanderGenerationLettreGreffiere()) {
-            fichierSortieLettreGreffiere = choisirDestinationLettreGreffiere(fichierSortieRequeteDocx.toPath());
+            fichierSortieLettreGreffiere = gestionnaireSortiesGeneration.choisirDestinationLettreGreffiere(fichierSortieRequete.toPath());
             if (fichierSortieLettreGreffiere == null) {
                 return;
             }
         }
 
-        if (!confirmerEcrasementSorties(fichierSortieRequeteDocx, fichierSortiePdf, fichierSortieLettreGreffiere)) {
+        if (!gestionnaireSortiesGeneration.confirmerEcrasementSorties(fichierSortieRequete, fichierSortiePdf, fichierSortieLettreGreffiere, this::afficherConfirmation)) {
             return;
         }
 
-        boolean ecrasement = fichierSortieRequeteDocx.exists() || (fichierSortiePdf != null && fichierSortiePdf.exists()) || (fichierSortieLettreGreffiere != null && fichierSortieLettreGreffiere.exists());
-        File fichierSortieRequeteDocxFinal = fichierSortieRequeteDocx;
+        boolean ecrasement = fichierSortieRequete.exists() || (fichierSortiePdf != null && fichierSortiePdf.exists()) || (fichierSortieLettreGreffiere != null && fichierSortieLettreGreffiere.exists());
+        File fichierSortieRequeteFinal = fichierSortieRequete;
         File fichierSortiePdfFinal = fichierSortiePdf;
         File fichierSortieLettreGreffiereFinal = fichierSortieLettreGreffiere;
         boolean ecrasementFinal = ecrasement;
@@ -2233,14 +2389,15 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
                             serviceGenerationLettreGreffiere.exporter(donneesDossier, cheminLettreGreffiere, ecrasementFinal);
                             cheminEntetePdf = cheminLettreGreffiere;
                         } else {
-                            cheminTemporaireLettreGreffiere = Files.createTempFile("cecdoc-lettre-greffiere-pdf-", ".docx");
+                            TypeDocumentGenere typeRequete = TypeDocumentGenere.depuisChemin(fichierSortieRequeteFinal.toPath());
+                            cheminTemporaireLettreGreffiere = Files.createTempFile("cecdoc-lettre-greffiere-pdf-", typeRequete.extension());
                             serviceGenerationLettreGreffiere.exporter(donneesDossier, cheminTemporaireLettreGreffiere, true);
                             cheminEntetePdf = cheminTemporaireLettreGreffiere;
                         }
                     }
 
                     publierEtape(generationPdfDemandee ? 55 : 70, generationPdfDemandee ? "Génération de la requête et du PDF..." : "Génération de la requête...");
-                    serviceApplication.exporterDocument(donneesDossier, fichierSortieRequeteDocxFinal.toPath(), ecrasementFinal, cheminPdf, cheminEntetePdf);
+                    serviceApplication.exporterDocument(donneesDossier, fichierSortieRequeteFinal.toPath(), ecrasementFinal, cheminPdf, cheminEntetePdf);
 
                     if (!generationPdfDemandee && cheminLettreGreffiere != null) {
                         publierEtape(90, "Génération de la lettre greffier·e...");
@@ -2274,7 +2431,7 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
 
                 try {
                     get();
-                    StringBuilder messageSucces = new StringBuilder("La requête a été générée avec succès.\nRequête : ").append(fichierSortieRequeteDocxFinal.getAbsolutePath());
+                    StringBuilder messageSucces = new StringBuilder("La requête a été générée avec succès.\nRequête : ").append(fichierSortieRequeteFinal.getAbsolutePath());
                     if (fichierSortiePdfFinal != null) {
                         messageSucces.append("\nPDF : ").append(fichierSortiePdfFinal.getAbsolutePath());
                     }
@@ -2310,36 +2467,6 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         demarrerTache(tacheGeneration, "Génération en cours...", true);
     }
 
-    private File choisirDestinationRequeteDocx() {
-        JFileChooser selecteurFichier = new JFileChooser();
-        MemoireRepertoireExplorateur.appliquerAuSelecteur(selecteurFichier, dossierSortieParDefaut);
-        selecteurFichier.setDialogTitle("Enregistrer la requête");
-        selecteurFichier.setSelectedFile(fichierParDefautDansDossierSortie("requete_changement_sexe.docx"));
-        selecteurFichier.setAcceptAllFileFilterUsed(false);
-        selecteurFichier.setFileFilter(new FileNameExtensionFilter("Requête (*.docx)", "docx"));
-        int choix = selecteurFichier.showSaveDialog(this);
-        if (choix != JFileChooser.APPROVE_OPTION) {
-            return null;
-        }
-        MemoireRepertoireExplorateur.memoriserDepuisSelection(selecteurFichier);
-        return garantirExtension(selecteurFichier.getSelectedFile(), "docx");
-    }
-
-    private File choisirDestinationDossierPdf(Path cheminRequeteDocx) {
-        JFileChooser selecteurFichier = new JFileChooser();
-        MemoireRepertoireExplorateur.appliquerAuSelecteur(selecteurFichier, dossierSortieParDefaut);
-        selecteurFichier.setDialogTitle("Enregistrer le dossier PDF");
-        selecteurFichier.setSelectedFile(ServicePdfDossierComplet.cheminPdfDossier(cheminRequeteDocx).toFile());
-        selecteurFichier.setAcceptAllFileFilterUsed(false);
-        selecteurFichier.setFileFilter(new FileNameExtensionFilter("Document PDF (*.pdf)", "pdf"));
-        int choix = selecteurFichier.showSaveDialog(this);
-        if (choix != JFileChooser.APPROVE_OPTION) {
-            return null;
-        }
-        MemoireRepertoireExplorateur.memoriserDepuisSelection(selecteurFichier);
-        return garantirExtension(selecteurFichier.getSelectedFile(), "pdf");
-    }
-
     private boolean demanderEnregistrementPdf() {
         String message = "Des pièces justificatives sont attachées.\nVoulez-vous enregistrer aussi le dossier PDF complet ?";
         int choix = afficherConfirmation(message, "Enregistrement du PDF", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -2347,89 +2474,9 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
     }
 
     private boolean demanderGenerationLettreGreffiere() {
-        String message = "Générer également la lettre pour le/la greffier·e en chef du Tribunal ?";
+        String message = "Générer également la lettre pour la·le greffier·e en chef du Tribunal ?";
         int choix = afficherConfirmation(message, "Lettre greffier·e", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
         return choix == JOptionPane.YES_OPTION;
-    }
-
-    private File choisirDestinationLettreGreffiere(Path cheminRequeteDocx) {
-        JFileChooser selecteurFichier = new JFileChooser();
-        MemoireRepertoireExplorateur.appliquerAuSelecteur(selecteurFichier, dossierSortieParDefaut);
-        selecteurFichier.setDialogTitle("Enregistrer la lettre greffier·e");
-        selecteurFichier.setSelectedFile(ServiceGenerationLettreGreffiere.cheminParDefaut(cheminRequeteDocx).toFile());
-        selecteurFichier.setAcceptAllFileFilterUsed(false);
-        selecteurFichier.setFileFilter(new FileNameExtensionFilter("Document Word (*.docx)", "docx"));
-        int choix = selecteurFichier.showSaveDialog(this);
-        if (choix != JFileChooser.APPROVE_OPTION) {
-            return null;
-        }
-        MemoireRepertoireExplorateur.memoriserDepuisSelection(selecteurFichier);
-        return garantirExtension(selecteurFichier.getSelectedFile(), ServiceGenerationLettreGreffiere.extensionParDefaut());
-    }
-
-    private boolean confirmerEcrasementSorties(File fichierSortieRequeteDocx, File fichierSortiePdf, File fichierSortieLettreGreffiere) {
-        List<String> sortiesExistantes = new ArrayList<>(3);
-        if (fichierSortieRequeteDocx != null && fichierSortieRequeteDocx.exists()) {
-            sortiesExistantes.add("Requête");
-        }
-        if (fichierSortiePdf != null && fichierSortiePdf.exists()) {
-            sortiesExistantes.add("PDF");
-        }
-        if (fichierSortieLettreGreffiere != null && fichierSortieLettreGreffiere.exists()) {
-            sortiesExistantes.add("Lettre greffier·e");
-        }
-
-        if (sortiesExistantes.isEmpty()) {
-            return true;
-        }
-
-        String message;
-        if (sortiesExistantes.size() == 1) {
-            message = "Le fichier " + sortiesExistantes.get(0) + " existe déjà. Voulez-vous le remplacer ?";
-        } else {
-            message = "Des fichiers de sortie existent déjà (" + String.join(", ", sortiesExistantes) + "). Voulez-vous les remplacer ?";
-        }
-
-        int choix = afficherConfirmation(message, "Confirmer l'écrasement", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-        return choix == JOptionPane.YES_OPTION;
-    }
-
-    private boolean aDesPiecesJointesExportables(DonneesDossier donneesDossier) {
-        if (donneesDossier == null || donneesDossier.piecesJustificativesDetaillees().isEmpty()) {
-            return false;
-        }
-
-        for (PieceJustificative piece : donneesDossier.piecesJustificativesDetaillees()) {
-            if (piece == null || piece.piecesJointes().isEmpty()) {
-                continue;
-            }
-            for (PieceJointe pieceJointe : piece.piecesJointes()) {
-                if (pieceJointe == null) {
-                    continue;
-                }
-                TypePieceJointe type = pieceJointe.type();
-                if (type == null || type == TypePieceJointe.INCONNU) {
-                    type = TypePieceJointe.depuisNomFichier(pieceJointe.nomVisible());
-                }
-                if (type.estPrisEnCharge()) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    private static File garantirExtension(File fichierSelectionne, String extensionAttendue) {
-        if (fichierSelectionne == null) {
-            return null;
-        }
-        String suffixe = "." + extensionAttendue.toLowerCase(Locale.ROOT);
-        if (fichierSelectionne.getName().toLowerCase(Locale.ROOT).endsWith(suffixe)) {
-            return fichierSelectionne;
-        }
-        File parent = fichierSelectionne.getParentFile();
-        return parent == null ? new File(fichierSelectionne.getName() + suffixe) : new File(parent, fichierSelectionne.getName() + suffixe);
     }
 
     private File fichierParDefautDansDossierSortie(String nomFichier) {
@@ -2471,8 +2518,7 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         boutonPieces.setEnabled(!occupe);
         boutonEffacer.setEnabled(!occupe);
         boutonAutresDocuments.setEnabled(!occupe);
-        boutonAide.setEnabled(!occupe);
-        boutonConfiguration.setEnabled(!occupe);
+        mettreAJourDisponibiliteMenus(!occupe);
         for (Map.Entry<JButton, RoleBouton> entry : rolesBoutons.entrySet()) {
             mettreAJourVisuelBouton(entry.getKey(), entry.getValue());
         }
@@ -2492,6 +2538,10 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
 
     @Override
     public void dispose() {
+        if (minuteriePersistanceEtat.isRunning()) {
+            minuteriePersistanceEtat.stop();
+            planifierEcritureEtatCapturee();
+        }
         executricePersistanceEtat.shutdown();
         try {
             if (!executricePersistanceEtat.awaitTermination(1, TimeUnit.SECONDS)) {
@@ -2663,24 +2713,7 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
     }
 
     private enum RoleBouton {
-        PRIMARY, SECONDARY, DANGER, ICON
-    }
-
-    private enum ContexteAffichagePopup {
-        DEMARRAGE, PRONOM_NEUTRE_BASCULE, THEME_MODIFIE_DANS_CONFIG
-    }
-
-    private enum FondPopupVisibilite {
-        TRANS, NON_BINAIRE, LESBIEN, INTERSEXE, RAINBOW, PANSEXUEL, BISEXUEL
-    }
-
-    private enum TypePopupVisibilite {
-        TDOV, VISIBILITE_NON_BINAIRE, VISIBILITE_LESBIENNE, VISIBILITE_INTERSEXE, LUTTE_LGBTQIPHOBIES, COMING_OUT_DAY, VISIBILITE_PANSEXUELLE, JOURNEE_BISEXUALITE
-    }
-
-    private record ConfigurationPopupVisibilite(String titreFenetre, String titreAffiche, String message,
-                                                FondPopupVisibilite fond, Color couleurTitre, Color couleurMessage,
-                                                String libelleBouton) {
+        PRIMARY, SECONDARY, DANGER
     }
 
     private record EtapeProgressionGeneration(int progression, String message) {
@@ -2911,148 +2944,6 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
         }
     }
 
-    private final class IconeConfiguration implements Icon {
-        private final int size;
-
-        private IconeConfiguration(int size) {
-            this.size = Math.max(12, size);
-        }
-
-        public void paintIcon(Component component, Graphics graphics, int x, int y) {
-            Graphics2D g2 = (Graphics2D) graphics.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            Color cercle = theme.palette().iconButton().foreground();
-            Color glyphe = theme.palette().inverseText();
-
-            int centreX = x + (size / 2);
-            int centreY = y + (size / 2);
-            int rayonExterieur = Math.max(5, (size / 2) - 3);
-            int rayonInterieur = Math.max(2, size / 6);
-            int longueurDent = Math.max(2, size / 7);
-            int epaisseurDent = Math.max(2, size / 8);
-
-            g2.setColor(cercle);
-            g2.fillOval(x, y, size, size);
-
-            g2.setColor(glyphe);
-            g2.fillOval(centreX - rayonExterieur, centreY - rayonExterieur, rayonExterieur * 2, rayonExterieur * 2);
-            g2.setColor(cercle);
-            g2.fillOval(centreX - rayonInterieur, centreY - rayonInterieur, rayonInterieur * 2, rayonInterieur * 2);
-
-            g2.setColor(glyphe);
-            for (int i = 0; i < 8; i++) {
-                double angle = Math.PI / 4.0 * i;
-                int dentX = centreX + (int) Math.round(Math.cos(angle) * (rayonExterieur + 1));
-                int dentY = centreY + (int) Math.round(Math.sin(angle) * (rayonExterieur + 1));
-                g2.fillRoundRect(dentX - (epaisseurDent / 2), dentY - (epaisseurDent / 2), longueurDent, epaisseurDent, epaisseurDent, epaisseurDent);
-            }
-
-            g2.dispose();
-        }
-
-        public int getIconWidth() {
-            return size;
-        }
-
-        public int getIconHeight() {
-            return size;
-        }
-    }
-
-    private final class IconeInfo implements Icon {
-        private final int size;
-
-        private IconeInfo(int size) {
-            this.size = Math.max(12, size);
-        }
-
-
-        public void paintIcon(Component component, Graphics graphics, int x, int y) {
-            Graphics2D g2 = (Graphics2D) graphics.create();
-            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            Color cercle = theme.palette().iconButton().foreground();
-            Color glyphe = theme.palette().inverseText();
-
-            g2.setColor(cercle);
-            g2.fillOval(x, y, size, size);
-
-            int taillePoint = Math.max(2, size / 6);
-            int largeurTrait = Math.max(2, size / 7);
-            int centreX = x + (size / 2);
-            int hautTrait = y + (size / 3);
-            int hauteurTrait = Math.max(4, size / 3);
-
-            g2.setColor(glyphe);
-            g2.fillOval(centreX - (taillePoint / 2), y + (size / 5), taillePoint, taillePoint);
-            g2.fillRoundRect(centreX - (largeurTrait / 2), hautTrait, largeurTrait, hauteurTrait, largeurTrait, largeurTrait);
-
-            g2.dispose();
-        }
-
-
-        public int getIconWidth() {
-            return size;
-        }
-
-
-        public int getIconHeight() {
-            return size;
-        }
-    }
-
-    private final class PanneauFondPopup extends JPanel {
-        private final FondPopupVisibilite fond;
-
-        private PanneauFondPopup(FondPopupVisibilite fond) {
-            this.fond = fond;
-            setOpaque(true);
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            Graphics2D g2 = (Graphics2D) g.create();
-            g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            g2.setPaint(creerFond(getWidth(), getHeight()));
-            g2.fillRect(0, 0, getWidth(), getHeight());
-            g2.dispose();
-        }
-
-        private java.awt.Paint creerFond(int largeur, int hauteur) {
-            int largeurEffective = Math.max(1, largeur);
-            int hauteurEffective = Math.max(1, hauteur);
-            switch (fond) {
-                case TRANS -> {
-                    return new LinearGradientPaint(0f, 0f, 0f, hauteurEffective, new float[]{0f, 0.25f, 0.5f, 0.75f, 1f}, new Color[]{COULEUR_TRANS_BLEU, COULEUR_TRANS_ROSE, COULEUR_BLANCHE, COULEUR_TRANS_ROSE, COULEUR_TRANS_BLEU});
-                }
-                case NON_BINAIRE -> {
-                    return new LinearGradientPaint(0f, 0f, 0f, hauteurEffective, new float[]{0f, 0.33333334f, 0.6666667f, 1f}, new Color[]{COULEUR_NON_BINAIRE_JAUNE, COULEUR_BLANCHE, COULEUR_NON_BINAIRE_VIOLET, COULEUR_NON_BINAIRE_NOIR});
-                }
-                case LESBIEN -> {
-                    return new LinearGradientPaint(0f, 0f, 0f, hauteurEffective, new float[]{0f, 0.16666667f, 0.33333334f, 0.5f, 0.6666667f, 0.8333333f, 1f}, new Color[]{COULEUR_LESBIEN_ORANGE_FONCE, COULEUR_LESBIEN_ORANGE_CLAIR, COULEUR_LESBIEN_ORANGE_PALE, COULEUR_BLANCHE, COULEUR_LESBIEN_ROSE, COULEUR_LESBIEN_ROSE_FONCE, COULEUR_LESBIEN_PRUNE});
-                }
-                case INTERSEXE -> {
-                    float rayon = Math.max(largeurEffective, hauteurEffective) / 2f;
-                    return new RadialGradientPaint(largeurEffective / 2f, hauteurEffective / 2f, rayon, new float[]{0f, 0.5f, 1f}, new Color[]{COULEUR_INTERSEXE_JAUNE, COULEUR_INTERSEXE_VIOLET, COULEUR_INTERSEXE_JAUNE});
-                }
-                case RAINBOW -> {
-                    return new LinearGradientPaint(0f, 0f, 0f, hauteurEffective, new float[]{0f, 0.2f, 0.4f, 0.6f, 0.8f, 1f}, new Color[]{COULEUR_RAINBOW_ROUGE, COULEUR_RAINBOW_ORANGE, COULEUR_RAINBOW_JAUNE, COULEUR_RAINBOW_VERT, COULEUR_RAINBOW_BLEU, COULEUR_RAINBOW_VIOLET});
-                }
-                case PANSEXUEL -> {
-                    return new LinearGradientPaint(0f, 0f, 0f, hauteurEffective, new float[]{0f, 0.5f, 1f}, new Color[]{COULEUR_PAN_ROSE, COULEUR_PAN_JAUNE, COULEUR_PAN_BLEU});
-                }
-                case BISEXUEL -> {
-                    return new LinearGradientPaint(0f, 0f, 0f, hauteurEffective, new float[]{0f, 0.5f, 1f}, new Color[]{COULEUR_BI_ROSE, COULEUR_BI_VIOLET, COULEUR_BI_BLEU});
-                }
-                default -> {
-                    return new GradientPaint(0, 0, theme.palette().backgroundTop(), 0, hauteurEffective, theme.palette().backgroundBottom());
-                }
-            }
-        }
-    }
-
     private final class PanneauDegrade extends JPanel {
         @Serial
         private static final long serialVersionUID = 1L;
@@ -3083,6 +2974,15 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
             g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             g2.setPaint(creerDegrade(getHeight()));
             g2.fillRect(0, 0, getWidth(), getHeight());
+            if (theme.mode() == ModeTheme.COMMUNISTE) {
+                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                float tailleSymbole = Math.max(42f, Math.min(getWidth(), getHeight()) * 0.14f);
+                g2.setFont(theme.typography().title().deriveFont(Font.BOLD, tailleSymbole));
+                g2.setColor(COULEUR_COMMUNISTE_JAUNE);
+                int x = Math.max(12, theme.spacing().inlineGap());
+                int y = Math.max((int) tailleSymbole, theme.spacing().inlineGap() * 2);
+                g2.drawString("\u262D", x, y);
+            }
             g2.dispose();
             super.paintComponent(g);
         }
@@ -3102,6 +3002,10 @@ public class FenetreCECDoc extends FenetreFormulaireAbstraite {
 
             if (modeTheme == ModeTheme.RAINBOW) {
                 return new LinearGradientPaint(0f, 0f, 0f, hauteurEffective, new float[]{0f, 0.2f, 0.4f, 0.6f, 0.8f, 1f}, new Color[]{RAINBOW_ROUGE, RAINBOW_ORANGE, RAINBOW_JAUNE, RAINBOW_VERT, RAINBOW_BLEU, RAINBOW_VIOLET});
+            }
+
+            if (modeTheme == ModeTheme.COMMUNISTE) {
+                return new LinearGradientPaint(0f, 0f, 0f, hauteurEffective, new float[]{0f, 1f}, new Color[]{COULEUR_COMMUNISTE_ROUGE_CLAIR, COULEUR_COMMUNISTE_ROUGE_FONCE});
             }
 
             return new GradientPaint(0, 0, theme.palette().backgroundTop(), 0, hauteurEffective, theme.palette().backgroundBottom());

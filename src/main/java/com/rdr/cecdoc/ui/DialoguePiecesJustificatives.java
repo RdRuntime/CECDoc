@@ -428,14 +428,7 @@ public final class DialoguePiecesJustificatives extends JDialog {
             return;
         }
 
-        JFileChooser selecteur = new JFileChooser();
-        MemoireRepertoireExplorateur.appliquerAuSelecteur(selecteur, null);
-        selecteur.setDialogTitle("Ajouter un fichier justificatif");
-        selecteur.setMultiSelectionEnabled(true);
-        selecteur.setAcceptAllFileFilterUsed(false);
-        selecteur.setFileFilter(new FileNameExtensionFilter("Documents pris en charge", "pdf", "doc", "docx", "jpg", "jpeg", "png"));
-        selecteur.getAccessibleContext().setAccessibleName("Sélecteur de pièces justificatives");
-        selecteur.getAccessibleContext().setAccessibleDescription("Permet de sélectionner des fichiers PDF, Word ou image à joindre au dossier");
+        JFileChooser selecteur = creerSelecteurPiecesJustificatives("Ajouter un fichier justificatif", true);
         int statut = selecteur.showOpenDialog(this);
         if (statut != JFileChooser.APPROVE_OPTION) {
             return;
@@ -515,14 +508,7 @@ public final class DialoguePiecesJustificatives extends JDialog {
             return;
         }
 
-        JFileChooser selecteur = new JFileChooser();
-        MemoireRepertoireExplorateur.appliquerAuSelecteur(selecteur, null);
-        selecteur.setDialogTitle("Remplacer le fichier");
-        selecteur.setMultiSelectionEnabled(false);
-        selecteur.setAcceptAllFileFilterUsed(false);
-        selecteur.setFileFilter(new FileNameExtensionFilter("Documents pris en charge", "pdf", "doc", "docx", "jpg", "jpeg", "png"));
-        selecteur.getAccessibleContext().setAccessibleName("Sélecteur de pièces justificatives");
-        selecteur.getAccessibleContext().setAccessibleDescription("Permet de sélectionner des fichiers PDF, Word ou image à joindre au dossier");
+        JFileChooser selecteur = creerSelecteurPiecesJustificatives("Remplacer le fichier", false);
         int statut = selecteur.showOpenDialog(this);
         if (statut != JFileChooser.APPROVE_OPTION) {
             return;
@@ -541,6 +527,18 @@ public final class DialoguePiecesJustificatives extends JDialog {
         listeFichiers.setSelectedIndex(index);
         synchroniserFichiersSelectionnes();
         mettreAJourAlerteFichier();
+    }
+
+    private JFileChooser creerSelecteurPiecesJustificatives(String titre, boolean multiSelection) {
+        JFileChooser selecteur = new JFileChooser();
+        MemoireRepertoireExplorateur.appliquerAuSelecteur(selecteur, null);
+        selecteur.setDialogTitle(titre);
+        selecteur.setMultiSelectionEnabled(multiSelection);
+        selecteur.setAcceptAllFileFilterUsed(false);
+        selecteur.setFileFilter(new FileNameExtensionFilter("Documents pris en charge", "pdf", "doc", "docx", "odt", "jpg", "jpeg", "png"));
+        selecteur.getAccessibleContext().setAccessibleName("Sélecteur de pièces justificatives");
+        selecteur.getAccessibleContext().setAccessibleDescription("Permet de sélectionner des fichiers PDF, Word, OpenDocument ou image à joindre au dossier");
+        return selecteur;
     }
 
     private void chargerFichiersPourIntituleSelectionne() {

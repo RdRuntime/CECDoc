@@ -9,7 +9,7 @@ public final class FabriqueTheme {
 
 
     public static SelecteurTheme creerSelecteur() {
-        return new SelecteurThemeStrategie(List.of(new StrategieThemeTrans(), new StrategieThemeNonBinaire(), new StrategieThemeLesbien(), new StrategieThemeIntersexe(), new StrategieThemeRainbow()));
+        return new SelecteurThemeStrategie(List.of(new StrategieThemeTrans(), new StrategieThemeNonBinaire(), new StrategieThemeLesbien(), new StrategieThemeIntersexe(), new StrategieThemeRainbow(), new StrategieThemeCommuniste()));
     }
 
 

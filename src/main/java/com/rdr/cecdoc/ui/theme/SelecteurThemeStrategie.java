@@ -15,7 +15,12 @@ public final class SelecteurThemeStrategie implements SelecteurTheme {
             StrategieTheme nonNull = Objects.requireNonNull(strategy, "strategy");
             this.strategies.put(nonNull.mode(), nonNull);
         }
-        if (!this.strategies.containsKey(ModeTheme.TRANS) || !this.strategies.containsKey(ModeTheme.NON_BINAIRE) || !this.strategies.containsKey(ModeTheme.LESBIEN) || !this.strategies.containsKey(ModeTheme.INTERSEXE) || !this.strategies.containsKey(ModeTheme.RAINBOW)) {
+        if (!this.strategies.containsKey(ModeTheme.TRANS)
+                || !this.strategies.containsKey(ModeTheme.NON_BINAIRE)
+                || !this.strategies.containsKey(ModeTheme.LESBIEN)
+                || !this.strategies.containsKey(ModeTheme.INTERSEXE)
+                || !this.strategies.containsKey(ModeTheme.RAINBOW)
+                || !this.strategies.containsKey(ModeTheme.COMMUNISTE)) {
             throw new IllegalArgumentException("Tous les thèmes doivent être enregistrés.");
         }
     }

@@ -1,6 +1,5 @@
 package com.rdr.cecdoc.ui;
 
-import com.rdr.cecdoc.ui.theme.PreferenceThemeApplication;
 import com.rdr.cecdoc.ui.theme.StyliseurBoutonTheme;
 import com.rdr.cecdoc.ui.theme.TokensTheme;
 
@@ -15,7 +14,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -34,14 +32,13 @@ public final class DialogueConfiguration extends JDialog {
     private final transient TokensTheme theme;
     private final JCheckBox checkboxConfirmerQuitter;
     private final JCheckBox checkboxMemoriserSaisie;
-    private final JComboBox<PreferenceThemeApplication> comboTheme;
     private final JTextField champDossierSortie;
     private final JButton boutonChoisirDossier;
     private final JButton boutonViderDossier;
 
     private boolean enregistre;
 
-    public DialogueConfiguration(JFrame proprietaire, TokensTheme theme, boolean confirmerQuitterAvecDonnees, boolean memoriserDonneesSaisies, PreferenceThemeApplication preferenceTheme, String dossierSortieParDefaut) {
+    public DialogueConfiguration(JFrame proprietaire, TokensTheme theme, boolean confirmerQuitterAvecDonnees, boolean memoriserDonneesSaisies, String dossierSortieParDefaut) {
         super(proprietaire, "Configuration", true);
         this.theme = Objects.requireNonNull(theme, "theme");
 
@@ -55,8 +52,6 @@ public final class DialogueConfiguration extends JDialog {
         checkboxMemoriserSaisie = new JCheckBox("Se souvenir des informations saisies à la prochaine ouverture (fichier de configuration)");
         checkboxMemoriserSaisie.setSelected(memoriserDonneesSaisies);
 
-        comboTheme = new JComboBox<>(PreferenceThemeApplication.values());
-        comboTheme.setSelectedItem(preferenceTheme == null ? PreferenceThemeApplication.DEFAUT : preferenceTheme);
         champDossierSortie = new JTextField();
         GestionAnnulationTexte.activer(champDossierSortie);
         champDossierSortie.setText(dossierSortieParDefaut == null ? "" : dossierSortieParDefaut.trim());
@@ -94,32 +89,7 @@ public final class DialogueConfiguration extends JDialog {
         centre.add(Box.createVerticalStrut(theme.spacing().inlineGap()));
         centre.add(checkboxMemoriserSaisie);
         centre.add(Box.createVerticalStrut(theme.spacing().inlineGap()));
-
-        JPanel panneauTheme = new JPanel();
-        panneauTheme.setLayout(new BoxLayout(panneauTheme, BoxLayout.Y_AXIS));
-        panneauTheme.setOpaque(false);
-        panneauTheme.setAlignmentX(LEFT_ALIGNMENT);
-
-        JLabel labelTheme = new JLabel("Définir le thème de l'application");
-        labelTheme.setFont(theme.typography().label());
-        labelTheme.setForeground(theme.palette().bodyText());
-        labelTheme.setLabelFor(comboTheme);
-        labelTheme.setDisplayedMnemonic(KeyEvent.VK_T);
-        labelTheme.setAlignmentX(LEFT_ALIGNMENT);
-
-        comboTheme.setFont(theme.typography().input());
-        comboTheme.setBackground(theme.palette().fieldBackground());
-        comboTheme.setForeground(theme.palette().bodyText());
-        comboTheme.setToolTipText("Choix du thème visuel de l'application");
-        comboTheme.setMaximumSize(new Dimension(Integer.MAX_VALUE, comboTheme.getPreferredSize().height));
-        comboTheme.setAlignmentX(LEFT_ALIGNMENT);
-
-        panneauTheme.add(labelTheme);
         int max = Math.max(2, theme.spacing().inlineGap() / 2);
-        panneauTheme.add(Box.createVerticalStrut(max));
-        panneauTheme.add(comboTheme);
-        centre.add(panneauTheme);
-        centre.add(Box.createVerticalStrut(theme.spacing().inlineGap()));
 
         JPanel panneauDossier = new JPanel();
         panneauDossier.setLayout(new BoxLayout(panneauDossier, BoxLayout.Y_AXIS));
@@ -164,6 +134,7 @@ public final class DialogueConfiguration extends JDialog {
         panneauDossier.add(Box.createVerticalStrut(max));
         panneauDossier.add(panneauActionsDossier);
         centre.add(panneauDossier);
+        centre.add(Box.createVerticalStrut(theme.spacing().inlineGap()));
 
         racine.add(centre, BorderLayout.CENTER);
 
@@ -210,8 +181,6 @@ public final class DialogueConfiguration extends JDialog {
         checkboxConfirmerQuitter.getAccessibleContext().setAccessibleDescription("Demande une confirmation avant de quitter l'application");
         checkboxMemoriserSaisie.getAccessibleContext().setAccessibleName("Mémorisation des informations saisies");
         checkboxMemoriserSaisie.getAccessibleContext().setAccessibleDescription("Conserve les informations saisies pour la prochaine ouverture");
-        comboTheme.getAccessibleContext().setAccessibleName("Thème de l'application");
-        comboTheme.getAccessibleContext().setAccessibleDescription("Définit un thème fixe ou le mode par défaut basé sur le formulaire");
         champDossierSortie.getAccessibleContext().setAccessibleName("Dossier de sortie par défaut");
         champDossierSortie.getAccessibleContext().setAccessibleDescription("Chemin du dossier proposé par défaut pour enregistrer les documents générés");
         boutonChoisirDossier.getAccessibleContext().setAccessibleName("Choisir le dossier de sortie");
@@ -267,14 +236,6 @@ public final class DialogueConfiguration extends JDialog {
 
     public boolean memoriserDonneesSaisies() {
         return checkboxMemoriserSaisie.isSelected();
-    }
-
-    public PreferenceThemeApplication preferenceTheme() {
-        Object selectionTheme = comboTheme.getSelectedItem();
-        if (selectionTheme instanceof PreferenceThemeApplication preference) {
-            return preference;
-        }
-        return PreferenceThemeApplication.DEFAUT;
     }
 
     public String dossierSortieParDefaut() {

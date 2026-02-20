@@ -6,6 +6,7 @@ import com.rdr.cecdoc.ui.theme.TokensTheme;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.event.KeyEvent;
 import java.io.Serial;
 import java.util.List;
 import java.util.Objects;
@@ -55,6 +56,15 @@ final class DialogueAutresDocuments extends JDialog {
         JButton boutonUniversite = new JButton("Lettre pour faire respecter les prénoms d'usage à l'université");
         JButton boutonAdministration = new JButton("Lettre pour faire mettre à jour mes informations auprès d'une administration");
         JButton boutonAnnuler = new JButton("Annuler");
+        boutonUniversite.setMnemonic(KeyEvent.VK_U);
+        boutonAdministration.setMnemonic(KeyEvent.VK_M);
+        boutonAnnuler.setMnemonic(KeyEvent.VK_A);
+        boutonUniversite.getAccessibleContext().setAccessibleName("Lettre université");
+        boutonUniversite.getAccessibleContext().setAccessibleDescription("Ouvre le formulaire de génération de lettre pour l'université");
+        boutonAdministration.getAccessibleContext().setAccessibleName("Lettre administration");
+        boutonAdministration.getAccessibleContext().setAccessibleDescription("Ouvre le formulaire de génération de lettre pour une administration");
+        boutonAnnuler.getAccessibleContext().setAccessibleName("Annuler");
+        boutonAnnuler.getAccessibleContext().setAccessibleDescription("Ferme la fenêtre sans ouvrir de formulaire");
 
         StyliseurBoutonTheme.appliquer(boutonUniversite, theme.palette().primaryButton(), theme, theme.typography().buttonPrimary());
         StyliseurBoutonTheme.appliquer(boutonAdministration, theme.palette().secondaryButton(), theme, theme.typography().buttonSecondary());
@@ -92,6 +102,9 @@ final class DialogueAutresDocuments extends JDialog {
         }, KeyStroke.getKeyStroke("ESCAPE"), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         setMinimumSize(new Dimension(760, 300));
+        getRootPane().setDefaultButton(boutonUniversite);
+        getAccessibleContext().setAccessibleName("Choix de document complémentaire");
+        getAccessibleContext().setAccessibleDescription("Permet de choisir une lettre université ou administration");
         pack();
         setLocationRelativeTo(proprietaire);
     }

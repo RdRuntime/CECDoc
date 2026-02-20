@@ -10,20 +10,20 @@ import org.docx4j.Docx4J;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 
 final class ConvertisseurWordVersPdfDirect implements ServicePdfDossierComplet.ConvertisseurWordVersPdf {
-    private final ConvertisseurWordVersPdfLibreOffice convertisseurSecours;
+    private final ServicePdfDossierComplet.ConvertisseurWordVersPdf convertisseurSecours;
 
     ConvertisseurWordVersPdfDirect() {
         this(new ConvertisseurWordVersPdfLibreOffice());
     }
 
-    ConvertisseurWordVersPdfDirect(ConvertisseurWordVersPdfLibreOffice convertisseurSecours) {
+    ConvertisseurWordVersPdfDirect(ServicePdfDossierComplet.ConvertisseurWordVersPdf convertisseurSecours) {
         this.convertisseurSecours = convertisseurSecours;
     }
 
     @Override
     public void convertir(Path fichierSource, Path fichierDestination, String nomFichier) throws ErreurExportDocument {
         String extension = extraireExtension(fichierSource, nomFichier);
-        if ("doc".equals(extension)) {
+        if ("doc".equals(extension) || "odt".equals(extension)) {
             convertisseurSecours.convertir(fichierSource, fichierDestination, nomFichier);
             return;
         }

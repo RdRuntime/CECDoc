@@ -100,10 +100,15 @@ public final class DialogueAide extends JDialog {
         return """
                 CECDoc permet de préparer et générer un dossier de requête de changement à l'état civil, avec synchronisation des données entre plusieurs formulaires.
                 
+                Barre de menus :
+                • Fichiers : paramètres, import et export de configuration ;
+                • Thème : sélection du thème visuel ;
+                • Aide : guide, recherche de mise à jour et fenêtre "À propos".
+                
                 Ce que génère l'application :
-                • Requête (.docx) : toujours générée ;
+                • Requête (.docx ou .odt) : toujours générée ;
                 • Dossier PDF complet : proposé uniquement si au moins une pièce justificative est attachée ;
-                • Lettre au/à la greffier·e : proposée à la génération de la requête ;
+                • Lettre à la·au greffier·e : proposée à la génération de la requête ;
                 • Autres documents : lettres "Université" et "Administration" accessibles via le bouton "Autres documents".
                 
                 Formulaire principal :
@@ -114,21 +119,24 @@ public final class DialogueAide extends JDialog {
                 
                 Fenêtre "Pièces justificatives" :
                 • vous pouvez ajouter, retirer, remplacer et réordonner les fichiers par intitulé ;
-                • formats acceptés : DOC, DOCX, PDF, JPG, JPEG, PNG ;
+                • formats acceptés : DOC, DOCX, ODT, PDF, JPG, JPEG, PNG ;
                 • les fichiers introuvables sont signalés et peuvent être corrigés ;
                 • l'ordre du PDF suit l'ordre des intitulés puis l'ordre des fichiers affichés.
                 
                 Fenêtre "Configuration" :
                 • confirmation avant fermeture ;
-                • mémorisation des saisies dans le fichier cecdoc.conf ;
-                • choix du thème (par défaut, trans, non-binaire, lesbien, intersexe, arc-en-ciel) ;
+                • mémorisation des saisies dans le fichier .cecdoc.conf ;
                 • dossier de sortie par défaut via sélecteur de dossier.
+
+                Choix du format de document :
+                • au moment de l'enregistrement, utilisez le type de fichier du sélecteur pour choisir .docx ou .odt.
                 
                 Raccourcis clavier principaux :
                 • Ctrl/Cmd + Entrée : générer ;
                 • Ctrl/Cmd + J : ouvrir "Pièces justificatives" ;
                 • Ctrl/Cmd + I ou F1 : ouvrir l'aide ;
-                • Ctrl/Cmd + , : ouvrir la configuration ;
+                • Ctrl/Cmd + , : ouvrir les paramètres ;
+                • Ctrl/Cmd + Q : quitter l'application ;
                 • Ctrl/Cmd + Maj + L : activer/désactiver le changement de prénoms ;
                 • Ctrl/Cmd + Z : annuler la saisie dans un champ texte ;
                 • Échap : effacer les messages de validation en ligne.

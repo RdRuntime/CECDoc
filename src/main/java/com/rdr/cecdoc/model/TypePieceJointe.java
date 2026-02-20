@@ -44,7 +44,7 @@ public enum TypePieceJointe {
         String extension = nomNormalise.substring(indexExtension + 1);
         return switch (extension) {
             case "pdf" -> PDF;
-            case "doc", "docx" -> WORD;
+            case "doc", "docx", "odt" -> WORD;
             case "jpg", "jpeg", "png" -> IMAGE;
             default -> INCONNU;
         };
