@@ -1,18 +1,20 @@
-# CECDoc — générateur de requête de changement de mention de sexe à l’état civil 🏳️‍⚧️
+# CECDoc — générateur de requête de changement de mention de sexe à l’état civil, et autres documents administratifs utiles à la transition 🏳️‍⚧️
 
 <p align="left">
-  <a href="release/CECDoc-4.2.0.jar?raw=1">
+  <a href="release/CECDoc-4.3.0.jar?raw=1">
     <img alt="Télécharger JAR" src="https://img.shields.io/badge/T%C3%A9l%C3%A9charger-JAR-EE4B2B?style=for-the-badge&logo=openjdk&logoColor=white">
   </a>
-  <a href="release/CECDoc-4.2.0.exe.7z?raw=1">
+  <a href="release/CECDoc-4.3.0.exe.7z?raw=1">
     <img alt="Télécharger EXE (build Windows)"
   src="https://img.shields.io/badge/T%C3%A9l%C3%A9charger-EXE-0078D4?style=for-the-badge&logo=data:image/svg%2Bxml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+PCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj48c3ZnIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCA0ODc1IDQ4NzUiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgeG1sbnM6c2VyaWY9Imh0dHA6Ly93d3cuc2VyaWYuY29tLyIgc3R5bGU9ImZpbGwtcnVsZTpldmVub2RkO2NsaXAtcnVsZTpldmVub2RkO3N0cm9rZS1saW5lam9pbjpyb3VuZDtzdHJva2UtbWl0ZXJsaW1pdDoyOyI+PHBhdGggZD0iTTAsMGwyMzExLDBsMCwyMzEwbC0yMzExLDBsMCwtMjMxMFptMjU2NCwwbDIzMTEsMGwwLDIzMTBsLTIzMTEsMGwwLC0yMzEwWm0tMjU2NCwyNTY0bDIzMTEsMGwwLDIzMTFsLTIzMTEsMGwwLC0yMzExWm0yNTY0LDBsMjMxMSwwbDAsMjMxMWwtMjMxMSwwIiBzdHlsZT0iZmlsbDojZmZmO2ZpbGwtcnVsZTpub256ZXJvOyIvPjwvc3ZnPg%3D%3D">
   </a>
-  <a href="release/CECDoc-3.0.0.dmg?raw=1">
-    <img alt="Télécharger DMG (build macOS) version 3.0.0" src="https://img.shields.io/badge/T%C3%A9l%C3%A9charger%203.0.0-DMG-000000?style=for-the-badge&logo=apple&logoColor=white">
+  <a href="https://www.swisstransfer.com/d/628314fe-fbce-42c1-bf7e-70a93d9a787c">
+    <img alt="Télécharger DMG (build macOS)" src="https://img.shields.io/badge/T%C3%A9l%C3%A9charger-DMG-000000?style=for-the-badge&logo=apple&logoColor=white">
   </a>
-  <a href="https://www.swisstransfer.com/d/d254f0a8-80a7-4745-80bf-9e3f2643d24c">
-    <img alt="Télécharger DMG (build macOS) dernière version" src="https://img.shields.io/badge/T%C3%A9l%C3%A9charger%20dernière%20version-DMG-000000?style=for-the-badge&logo=apple&logoColor=white">
+</p>
+<p>
+  <a href="https://github.com/sponsors/RdRuntime">
+   <img alt="M'offrir un café" src="https://img.shields.io/badge/M'offrir%20un%20caf%C3%A9-CD7F32?style=for-the-badge&logo=buymeacoffee&logoColor=white">
   </a>
 </p>
 
@@ -23,12 +25,11 @@
 
 **CECDoc** est une **application communautaire** pour les personnes trans.
 
-C’est une application libre et open-source **desktop** (Java/Swing), développée en **projet Maven**, qui aide à préparer une **requête de changement de la mention de sexe à l’état civil** — **avec ou sans changement de prénoms** — puis génère un **document Word (.docx)** ou **LibreOffice (.odt)** prêt à relire, compléter (signature, pièces) et déposer, ainsi qu'un PDF du dossier complet avec annexes, prêt à imprimer, avec les pièces que vous aurez jointes. Il est également possible de générer la lettre pour le/la Greffier·e en Chef du Tribunal à mettre en entête du dossier, ainsi que :
-- une lettre pour faire respecter les prénoms d’usage à l’université d'après la circulaire de la Ministre de l'enseignement supérieur en date du 17 avril 2019 ;
-- une lettre pour faire mettre à jour ses informations auprès d’une administration après un changement de prénoms et/ou de sexe à l'état civil.
+C’est une application libre et open-source **desktop** (Java/Swing), développée en **projet Maven**, qui aide à préparer une **requête de changement de la mention de sexe à l’état civil** — **avec ou sans changement de prénoms** — puis génère un **document Word (.docx)** ou **LibreOffice (.odt)** prêt à relire, compléter (signature, pièces) et déposer, ainsi qu'un PDF du dossier complet avec annexes, prêt à imprimer, avec les pièces que vous aurez jointes. Il est également possible de générer la lettre pour le/la Greffier·e en Chef du Tribunal ainsi que divers courriers utiles (recours, relances, demandes de modifications auprès d'administrations diverses, RGPD, ...).
 
 <p align="center">
   <img src="img/illustration.png" alt="Capture d’écran de CECDoc" width="800">
+  <img src="img/autresdocuments.png" alt="Capture d'écran de la fenêtre autres documents de CECDoc" width=400>
 </p>
 
 ## ❓ Pourquoi ?
@@ -36,7 +37,7 @@ C’est une application libre et open-source **desktop** (Java/Swing), développ
 Les démarches d’état civil peuvent être longues, coûteuses, et parfois vécues comme une **violence administrative** (paperasse, injonctions, barrières juridiques, phobie administrative ou simplement difficultés à se mobiliser en raison de sa santé mentale, etc.).  
 CECDoc vise un objectif simple : **réduire la charge** et **reprendre du pouvoir** sur sa procédure en automatisant la génération et la mise en forme d’une requête cohérente, tout en laissant la place au récit personnel et aux choix de pièces.
 
-L’outil n’est pas un substitut à un accompagnement juridique ou associatif : il facilite la production d’un document, pas la stratégie ni la "défense".
+L’outil n’est pas un substitut à un accompagnement juridique ou associatif : il facilite la production de documents, pas la stratégie ni la "défense".
 
 ## 🕹️ Fonctionnalités
 
@@ -48,10 +49,8 @@ L’outil n’est pas un substitut à un accompagnement juridique ou associatif 
   - un document Word `.docx` ou LibreOffice `.odt` de la requête ;
   - un PDF du dossier complet prêt au dépôt ;
   - éventuellement, document Word `.docx` ou LibreOffice `.odt` destiné au/à la Greffier·e en Chef du Tribunal ;
-  - dans le menu "Autre documents" :
-    - une lettre `.docx` ou `.odt`  pour faire respecter les prénoms d’usage à l’université ;
-    - une lettre `.docx` ou `.odt` pour faire mettre à jour ses informations auprès d’une administration après un changement de prénoms et/ou de sexe à l'état civil.
-- Fenêtre "Autres documents" : générer les deux lettres susmentionnées.
+  - Divers documents administratifs utiles pour une personne trans (dans "Autre documents").
+- Fenêtre "Autres documents" : générer divers documents : lettres de recours, demandes de mise à jour des actes ou informations, RGPD, ...
 - Fenêtre "Pièces justificatives" :
   - personnalisation des intitulés ;
   - ajout de fichiers par intitulé ;
@@ -63,7 +62,7 @@ L’outil n’est pas un substitut à un accompagnement juridique ou associatif 
 
 Le PDF final est assemblé dans cet ordre :
 
-1. requête Word convertie en PDF ;
+1. requête Word/LibreOffice convertie en PDF ;
 2. puis, pour chaque intitulé de pièce justificative dans l’ordre d’affichage UI, les fichiers attachés dans l’ordre défini dans l’interface.
 
 Formats de pièces jointes acceptés : **DOC, ODT, DOCX, PDF, JPG, JPEG, PNG**.
@@ -90,7 +89,7 @@ Le panneau **Configuration** permet de choisir un thème :
 
 Quand un thème explicite est choisi en configuration, il prend le dessus sur le comportement automatique.
 
-## ⚙️ Persistance locale (`cecdoc.conf`)
+## ⚙️ Persistance locale (`.cecdoc.conf`)
 
 CECDoc sauvegarde l’état des formulaires dans un fichier `.cecdoc.conf` (format `.properties`) placé à côté de l’exécutable, avec repli sur le répertoire courant.
 
@@ -111,6 +110,7 @@ Comportement :
 
 - `Ctrl/Cmd + Entrée` : générer le dossier
 - `Ctrl/Cmd + J` : ouvrir "Pièces justificatives"
+- `Ctrl/Cmd + O` : ouvrir "Autres documents"
 - `Ctrl/Cmd + I` ou `F1` : ouvrir l’aide
 - `Ctrl/Cmd + Shift + L` : activer/désactiver le mode "changement de prénoms"
 - `Échap` : effacer les erreurs de validation affichées
@@ -119,20 +119,27 @@ Comportement :
 
 Des exemples de documents générés sont disponibles :
 - [Ici](exemples/requete_changement_sexe.docx?raw=1) pour la requête au format Word ;
-- [Ici](exemples/requete_changement_sexe_dossier_complet.pdf?raw=1) pour le PDF du dossier complet ;
 - [Ici](exemples/requete_changement_sexe_lettre_greffierE.docx?raw=1) pour la lettre au/à la greffier·e ;
 - [Ici](exemples/lettre_prenom_usage_universite.docx?raw=1) pour la lettre à l'université ;
-- [Ici](exemples/lettre_mise_a_jour_administration.docx?raw=1) pour la lettre aux administrations.
+- [Ici](exemples/lettre_mise_a_jour_administration.docx?raw=1) pour la lettre aux administrations ;
+- [Ici](exemples/lettre_relance_mairie_prenoms.docx) pour la lettre de relance à la mairie ;
+- [Ici](exemples/lettre_relance_tribunal.docx) pour la lettre de relance au tribunal ;
+- [Ici](exemples/lettre_mise_a_jour_actes_lies.docx) pour la lettre de mise à jour des actes d'état civil liés ;
+- [Ici](exemples/recours_refus_changement_prenoms.docx) pour le recours en cas de refus de changement de prénoms ;
+- [Ici](exemples/recours_refus_changement_sexe.docx) pour le recours en cas de refus de changement de sexe [ou de sexe et de prénoms](exemples/recours_refus_changement_sexe_et_prenoms.docx) ;
+- [Ici](exemples/lettre_rgpd_minimisation.docx) pour une demande de rectification/minimisation des données sur la base du RGPD.
 
 ## 🛠️ Installation/utilisation
 
 ### Build Windows (.exe)
 
-Une version **Windows** est disponible au format [7-Zip](https://www.7-zip.fr/). Un bouton pour la télécharger est disponible plus haut. Téléchargez le fichier, exécutez-le et suivez les instructions d'installation.
+Une version **Windows** est disponible au format [7-Zip](https://www.7-zip.fr/). Un bouton pour la télécharger est disponible plus haut. Téléchargez le fichier, décompressez-le avec 7-Zip, exécutez-le et suivez les instructions d'installation.
 
 ### Build macOS (.dmg)
 
-Deux versions **macOS** sont également disponibles : le .dmg est trop lourd pour être uploadé sur GitHub. Pour la version 3.0.0, j'ai réussi à la faire passer en la compressant au format [7-Zip](https://www.7-zip.fr/). Elle est donc téléchargeable directement sur le repo via le bouton "Télécharger 3.0.0" disponible plus haut. La dernière version (4.2.0) est distribuée via un site de partage de fichiers (bouton "Télécharger dernière version"), mais ces liens expirent et il se peut que j'oublie de le mettre à jour tous les 30 jours. Dans ce cas, n'hésitez pas à [m'envoyer un mail](mailto:rdr@tutanota.de) pour solliciter cette dernière version, qui présente des améliorations majeures.
+Une version **macOS** est également disponible, mais le .dmg est trop lourd pour être uploadé sur GitHub. Il est donc distribué via un site de partage de fichiers (bouton ci-dessus), mais ces liens expirent et il se peut que j'oublie de le mettre à jour tous les 30 jours.
+Dans ce cas, n'hésitez pas à [m'envoyer un mail](mailto:rdr@tutanota.de) pour solliciter ce build.
+Autrement, je vous encourage à installer Java et utiliser le **.jar** (voir section suivante) disponible au téléchargement via le bouton plus haut.
 
 #### Si macOS (Gatekeeper) bloque CECDoc :
 
@@ -156,7 +163,7 @@ sudo xattr -r -d com.apple.quarantine "/Applications/CECDoc.app"
 Une fois que vous avez un `.jar` exécutable, et après avoir installé Java (voir plus bas), double cliquez dessus ou faites :
 
 ```bash
-java -jar CECDoc-4.2.0.jar
+java -jar CECDoc-4.3.0.jar
 ```
 
 ## 💻 Prérequis
@@ -257,17 +264,13 @@ CECDoc est conçu pour rester utilisable au clavier et avec des technologies d�
 
 ## 🥚 Easter eggs
 
-- Journée internationale contre l'homophobie, la transphobie, et la biphobie : le 17 mai, à l'ouverture du programme, un pop-up s'affiche... 🏳️‍🌈
-- Journée internationale de la visibilité pansexuelle : le 24 mai, à l'ouverture du programme, un pop-up s'affiche pour la journée internationale de la visibilité pansexuelle. Et quel popup... 😳
-- Journée internationale de visibilité des personnes non-binaires : le 14 juillet, un pop-up s'affiche si le thème actif est non-binaire. Just a bit shady... 🕶️
-- Journée internationale de visibilité lesbienne : le 26 avril, à l'ouverture du programme, un pop-up s'affiche si le thème lesbien est actif... histoire de les congratuler comme il se doit. 😍
-- Journée de la bisexualité : le 23 septembre, à l'ouverture du programme, un pop-up s'affiche... Just a bit shadier... 👓
-- Coming out day : le 11 octobre, à l'ouverture du programme, un pop-up s'affiche. 👯
-- Journée internationale de visibilité intersexe : le 8 novembre, un pop-up s'affiche si le thème intersexe est actif. 💛💜💛
-- TDoV – Trans Day of Visibility : le 31 mars, à l'ouverture du programme, un pop-up s'affiche. 🏳️‍⚧️
+Quelques easter eggs se sont glissés dans le programme... 😉
+
+## 💬 Suggestions
+
+Vos suggestions (fonctionnalités, documents à ajouter) sont les bienvenues !
+Je vous remercie par ailleurs de me faire remonter tout problème, bug ou erreur identifié·e.
 
 ## ✉️ Me contacter
 
 Vous pouvez me contacter via [ce mail](mailto:rdr@tutanota.de).
-
----

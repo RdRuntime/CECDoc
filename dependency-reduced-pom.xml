@@ -4,7 +4,7 @@
   <groupId>com.rdr</groupId>
   <artifactId>CECDoc</artifactId>
   <name>CECDoc</name>
-  <version>4.2.0</version>
+  <version>4.3.0</version>
   <build>
     <plugins>
       <plugin>
@@ -63,10 +63,10 @@
     <maven.compiler.release>17</maven.compiler.release>
     <pdfbox.version>2.0.31</pdfbox.version>
     <docx4j.version>11.5.2</docx4j.version>
-    <jodconverter.version>4.4.8</jodconverter.version>
     <shade.plugin.version>3.5.1</shade.plugin.version>
+    <junit.jupiter.version>5.10.2</junit.jupiter.version>
+    <jodconverter.version>4.4.8</jodconverter.version>
     <poi.version>5.3.0</poi.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <junit.jupiter.version>5.10.2</junit.jupiter.version>
   </properties>
 </project>

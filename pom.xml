@@ -5,7 +5,7 @@
 
     <groupId>com.rdr</groupId>
     <artifactId>CECDoc</artifactId>
-    <version>4.2.0</version>
+    <version>4.3.0</version>
     <name>CECDoc</name>
     <packaging>jar</packaging>
 
